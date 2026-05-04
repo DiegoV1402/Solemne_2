@@ -67,4 +67,8 @@ La vamos a utilizar para el movimiento del jugador mediante el teclado, es decir
 HTML, CSS y JS
 Los usaremos ya que tenemos mas experiencias puesto que lo aprendimos en clases.
 
+#Phaser 3 
+utilizaremos este engine para usarlo como motor principal para el desarrollo del juego 
+
 #Posiblemente se agreguen mas libreria mediante las utilicemos, las cuales las iremos añadiendo cuando las necesitemos.
+

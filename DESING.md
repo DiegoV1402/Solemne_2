@@ -70,5 +70,8 @@ Los usaremos ya que tenemos mas experiencias puesto que lo aprendimos en clases.
 #Phaser 3 
 utilizaremos este engine para usarlo como motor principal para el desarrollo del juego 
 
+#Vite
+Vamos a usar vite para que el proyecto se inicie de una forma muy rapida y los cambios se reflejen sin tener que actualizar la pagina.
+
 #Posiblemente se agreguen mas libreria mediante las utilicemos, las cuales las iremos añadiendo cuando las necesitemos.
 

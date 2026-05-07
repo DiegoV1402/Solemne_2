@@ -13,10 +13,10 @@
 
 ### 🔹 Semana 2
 *Objetivo: Prototipado funcional en Vue.js.*
-- [ ] Investigar mas librerias para agregar en el proyecto.
-- [ ] Codificar la pantalla de inicio y el HUD.
-- [ ] Implementar el sistema de captura de teclas y movimiento del personaje.
-- [ ] Investigar sobre Phaser3 e introducir y probar en el codigo.
+- [x] Investigar mas librerias para agregar en el proyecto.
+- [x] Codificar la pantalla de inicio y el HUD.
+- [x] Implementar el sistema de captura de teclas y movimiento del personaje.
+- [x] Investigar sobre Phaser3 e introducir y probar en el codigo.
 - [ ] Añadir la arquitectura de carpetas.
 
 

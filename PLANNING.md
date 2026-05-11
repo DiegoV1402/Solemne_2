@@ -18,6 +18,7 @@
 - [x] Implementar el sistema de captura de teclas y movimiento del personaje.
 - [x] Investigar sobre Phaser3 e introducir y probar en el codigo.
 - [ ] Añadir la arquitectura de carpetas.
+      
 
 
 
@@ -26,6 +27,7 @@
 - [ ] Añadir enemigos y lógica de persecución al jugador.
 - [ ] Implementar sistema de colisiones y daño.
 - [ ] Desarrollar la pantalla de muerte (Game Over).
+- [ ] Agregar gitignore e implementar actions. 
 
 
 ### 🔹 Semana 4

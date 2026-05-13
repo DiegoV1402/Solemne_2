@@ -1,14 +1,8 @@
 <template>
-  <!--
-    HUD renderizado con Vue sobre el canvas de Phaser.
-    pointer-events: none para no capturar el mouse que Phaser necesita.
-    Solo el botón de pausa tiene pointer-events activo.
-  -->
   <div class="hud-overlay">
 
     <!-- ── Esquina superior izquierda: HP + XP ── -->
     <div class="hud-topleft">
-      <!-- Barra de HP -->
       <div class="hud-row">
         <span class="hud-icon">❤️</span>
         <div class="bar-track hp-track">
@@ -17,7 +11,6 @@
         <span class="hud-val">{{ playerStore.hp }}/{{ playerStore.maxHp }}</span>
       </div>
 
-      <!-- Barra de XP -->
       <div class="hud-row">
         <span class="hud-icon xp-icon">✦</span>
         <div class="bar-track xp-track">
@@ -27,8 +20,9 @@
       </div>
     </div>
 
-    <!-- ── Esquina superior derecha: tiempo + pausa ── -->
+    <!-- ── Esquina superior derecha: tiempo + enemigos + pausa ── -->
     <div class="hud-topright">
+      <span class="hud-enemies">💀 {{ gameStore.enemiesDefeated }}</span>
       <span class="hud-time">⏱ {{ gameStore.elapsedFormatted }}</span>
       <button class="btn-pause" @click="gameStore.togglePause" title="Pausar (ESC)">
         ⏸
@@ -47,17 +41,15 @@ const playerStore = usePlayerStore()
 </script>
 
 <style scoped>
-/* Overlay transparente sobre todo el canvas */
 .hud-overlay {
   position: absolute;
   inset: 0;
   width: 900px;
   height: 600px;
-  pointer-events: none;   /* no bloquear input a Phaser */
+  pointer-events: none;
   z-index: 10;
 }
 
-/* ── Top izquierdo ──────────────────────────── */
 .hud-topleft {
   position: absolute;
   top: 14px;
@@ -73,13 +65,8 @@ const playerStore = usePlayerStore()
   gap: 7px;
 }
 
-.hud-icon {
-  font-size: 12px;
-  width: 16px;
-  text-align: center;
-}
-
-.xp-icon { color: var(--color-xp); font-size: 10px; }
+.hud-icon { font-size: 12px; width: 16px; text-align: center; }
+.xp-icon  { color: var(--color-xp); font-size: 10px; }
 
 .bar-track {
   width: 130px;
@@ -96,18 +83,12 @@ const playerStore = usePlayerStore()
   transition: width 0.12s ease-out;
 }
 
-.hp-fill  { background: linear-gradient(90deg, #991a1a, #ff4444); }
-.xp-fill  { background: linear-gradient(90deg, #1077aa, #22aacc); }
+.hp-fill { background: linear-gradient(90deg, #991a1a, #ff4444); }
+.xp-fill { background: linear-gradient(90deg, #1077aa, #22aacc); }
 
-.hud-val {
-  font-size: 7px;
-  color: var(--color-text);
-  min-width: 56px;
-}
+.hud-val   { font-size: 7px; color: var(--color-text); min-width: 56px; }
+.xp-val    { color: var(--color-xp); }
 
-.xp-val { color: var(--color-xp); }
-
-/* ── Top derecho ────────────────────────────── */
 .hud-topright {
   position: absolute;
   top: 14px;
@@ -123,7 +104,12 @@ const playerStore = usePlayerStore()
   text-shadow: 0 0 8px rgba(201,147,58,0.6);
 }
 
-/* El botón SÍ necesita recibir clicks */
+.hud-enemies {
+  font-size: 8px;
+  color: #ff6666;
+  text-shadow: 0 0 8px rgba(255,50,50,0.5);
+}
+
 .btn-pause {
   pointer-events: all;
   background: rgba(0,0,0,0.5);

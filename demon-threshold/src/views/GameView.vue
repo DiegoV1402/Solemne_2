@@ -1,22 +1,14 @@
 <template>
-  <!--
-    GameView envuelve el canvas de Phaser y el overlay de pausa.
-    GameCanvas NUNCA se desmonta aquí — siempre está presente.
-    El overlay de pausa es una capa Vue por encima con CSS.
-  -->
   <div class="game-view">
     <GameCanvas />
 
-    <!-- Overlay de PAUSA — solo visible cuando phase === 'paused' -->
-    <!-- v-show (no v-if) para no destruir nada del DOM -->
+    <!-- Overlay PAUSA -->
     <transition name="pause-fade">
       <div v-show="gameStore.isPaused" class="pause-overlay">
         <div class="pause-panel">
-
           <div class="pause-ornament top-ornament">✦ ─────── ✦</div>
           <h2 class="pause-title">PAUSA</h2>
           <div class="pause-ornament">✦ ─────── ✦</div>
-
           <nav class="pause-nav">
             <button class="pause-btn primary" @click="gameStore.togglePause">
               ▶&nbsp; REANUDAR
@@ -25,14 +17,46 @@
               ⬅&nbsp; MENÚ PRINCIPAL
             </button>
           </nav>
-
-          <!-- Stats rápidas durante la pausa -->
           <div class="pause-stats">
             <span>Nivel {{ playerStore.level }}</span>
             <span class="sep">·</span>
             <span>{{ gameStore.elapsedFormatted }}</span>
           </div>
+        </div>
+      </div>
+    </transition>
 
+    <!-- FIX: Overlay GAME OVER -->
+    <transition name="pause-fade">
+      <div v-show="gameStore.phase === 'gameover'" class="pause-overlay gameover-overlay">
+        <div class="pause-panel gameover-panel">
+          <div class="pause-ornament top-ornament">✦ ─────── ✦</div>
+          <h2 class="pause-title gameover-title">GAME OVER</h2>
+          <div class="pause-ornament">✦ ─────── ✦</div>
+
+          <div class="gameover-stats">
+            <div class="stat-row">
+              <span class="stat-label">Tiempo</span>
+              <span class="stat-val">{{ gameStore.elapsedFormatted }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Nivel</span>
+              <span class="stat-val">{{ playerStore.level }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Enemigos</span>
+              <span class="stat-val">{{ gameStore.enemiesDefeated }}</span>
+            </div>
+          </div>
+
+          <nav class="pause-nav">
+            <button class="pause-btn primary" @click="handleRestart">
+              ↺&nbsp; REINTENTAR
+            </button>
+            <button class="pause-btn" @click="handleMenu">
+              ⬅&nbsp; MENÚ PRINCIPAL
+            </button>
+          </nav>
         </div>
       </div>
     </transition>
@@ -48,8 +72,16 @@ const gameStore   = useGameStore()
 const playerStore = usePlayerStore()
 
 function handleMenu() {
-  // gameStore.goToMenu() dispara el watcher en GameCanvas que destruye Phaser
   gameStore.goToMenu()
+}
+
+// FIX: reiniciar → volver al menú y luego a playing para que Phaser se recree limpio
+function handleRestart() {
+  gameStore.goToMenu()
+  // Pequeño delay para que Vue desmonte GameCanvas y destruya Phaser
+  setTimeout(() => {
+    gameStore.startGame()
+  }, 50)
 }
 </script>
 
@@ -60,17 +92,19 @@ function handleMenu() {
   height: 100vh;
 }
 
-/* ── Overlay de pausa ───────────────────────────────────── */
 .pause-overlay {
   position: absolute;
   inset: 0;
-  /* Oscurecer el canvas sin ocultarlo — el fondo sigue visible */
-  background: rgba(0, 0, 0, 0.60);
+  background: rgba(0,0,0,0.60);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 50;
+}
+
+.gameover-overlay {
+  background: rgba(20,0,0,0.75);
 }
 
 .pause-panel {
@@ -85,13 +119,21 @@ function handleMenu() {
     0 0 0 4px rgba(0,0,0,0.6),
     0 0 40px rgba(201,147,58,0.25),
     inset 0 1px 0 rgba(255,255,255,0.05);
-  /* Recorte decorativo en las esquinas */
   clip-path: polygon(
     16px 0%, calc(100% - 16px) 0%,
     100% 16px, 100% calc(100% - 16px),
     calc(100% - 16px) 100%, 16px 100%,
     0% calc(100% - 16px), 0% 16px
   );
+}
+
+.gameover-panel {
+  border-color: #cc2222;
+  background: linear-gradient(160deg, #1e0808 0%, #0f0202 100%);
+  box-shadow:
+    0 0 0 4px rgba(0,0,0,0.6),
+    0 0 60px rgba(200,30,30,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.03);
 }
 
 .pause-ornament {
@@ -107,12 +149,15 @@ function handleMenu() {
   font-size: 22px;
   color: var(--color-gold);
   letter-spacing: 10px;
-  text-shadow:
-    0 0 20px rgba(201,147,58,0.7),
-    0 0 60px rgba(201,147,58,0.2);
+  text-shadow: 0 0 20px rgba(201,147,58,0.7), 0 0 60px rgba(201,147,58,0.2);
 }
 
-/* ── Botones ─────────────────────────────────────────────── */
+.gameover-title {
+  color: #ff4444;
+  letter-spacing: 6px;
+  text-shadow: 0 0 20px rgba(255,50,50,0.8), 0 0 60px rgba(200,0,0,0.4);
+}
+
 .pause-nav {
   display: flex;
   flex-direction: column;
@@ -139,7 +184,6 @@ function handleMenu() {
   border-color: var(--color-gold);
   transform: translateY(-1px);
 }
-
 .pause-btn:active { transform: translateY(1px); }
 
 .pause-btn.primary {
@@ -148,14 +192,31 @@ function handleMenu() {
   background: rgba(224,90,26,0.12);
   font-size: 12px;
 }
-
 .pause-btn.primary:hover {
   background: rgba(224,90,26,0.25);
   color: #ffa070;
   border-color: #ff7040;
 }
 
-/* ── Stats mini ──────────────────────────────────────────── */
+.gameover-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  padding: 16px 24px;
+  border: 1px solid rgba(255,50,50,0.2);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+}
+
+.stat-label { color: rgba(232,217,192,0.5); }
+.stat-val   { color: #ff8888; }
+
 .pause-stats {
   font-size: 8px;
   color: rgba(232,217,192,0.4);
@@ -164,7 +225,6 @@ function handleMenu() {
 }
 .sep { opacity: 0.4; }
 
-/* ── Transición ──────────────────────────────────────────── */
 .pause-fade-enter-active { transition: opacity 0.2s ease, transform 0.2s ease; }
 .pause-fade-leave-active { transition: opacity 0.15s ease, transform 0.15s ease; }
 .pause-fade-enter-from   { opacity: 0; transform: scale(0.97); }

@@ -65,6 +65,37 @@ export class PreloadScene extends Phaser.Scene {
     wallGfx.generateTexture('wall', 50, 50)
     wallGfx.destroy()
 
+    // ── Textura del ENEMIGO (rombo rojo con brillo) ───────────
+    const enemyGfx = this.make.graphics({ x: 0, y: 0, add: false })
+
+    // Aura exterior
+    enemyGfx.fillStyle(0x880000, 0.35)
+    enemyGfx.fillCircle(22, 22, 20)
+
+    // Cuerpo rojo oscuro
+    enemyGfx.fillStyle(0xcc1111, 1)
+    enemyGfx.fillCircle(22, 22, 14)
+
+    // Detalle interior
+    enemyGfx.fillStyle(0xff3333, 1)
+    enemyGfx.fillCircle(17, 16, 7)
+
+    // Ojo brillante
+    enemyGfx.fillStyle(0xffffff, 1)
+    enemyGfx.fillCircle(16, 15, 3)
+
+    // Pupila
+    enemyGfx.fillStyle(0x000000, 1)
+    enemyGfx.fillCircle(17, 16, 1.5)
+
+    // Cuernos (triángulos)
+    enemyGfx.fillStyle(0x880000, 1)
+    enemyGfx.fillTriangle(16, 8, 12, 0, 20, 0)
+    enemyGfx.fillTriangle(28, 8, 24, 0, 32, 0)
+
+    enemyGfx.generateTexture('enemy', 44, 44)
+    enemyGfx.destroy()
+
     // Ir a la escena de juego
     this.scene.start('GameScene')
   }

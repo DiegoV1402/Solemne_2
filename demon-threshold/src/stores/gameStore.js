@@ -1,12 +1,10 @@
 // stores/gameStore.js
-// Estado global de la partida. La fase controla qué muestra Vue
-// Y también le dice a Phaser si pausar o no.
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 export const useGameStore = defineStore('game', () => {
-  // 'menu' | 'playing' | 'paused' | 'gameover'
+  // 'menu' | 'playing' | 'paused' | 'upgrading' | 'gameover'
   const phase = ref('menu')
 
   const elapsedMs       = ref(0)
@@ -33,6 +31,9 @@ export const useGameStore = defineStore('game', () => {
     else if (phase.value === 'paused') phase.value = 'playing'
   }
 
+  function openUpgrade()  { phase.value = 'upgrading' }
+  function closeUpgrade() { phase.value = 'playing' }
+
   function gameOver() { phase.value = 'gameover' }
   function goToMenu()  { phase.value = 'menu' }
 
@@ -43,6 +44,7 @@ export const useGameStore = defineStore('game', () => {
   return {
     phase, elapsedMs, enemiesDefeated,
     isPlaying, isPaused, elapsedFormatted,
-    startGame, togglePause, gameOver, goToMenu, addTime
+    startGame, togglePause, gameOver, goToMenu, addTime,
+    openUpgrade, closeUpgrade
   }
 })

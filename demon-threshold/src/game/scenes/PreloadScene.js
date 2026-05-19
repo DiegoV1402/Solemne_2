@@ -1,6 +1,5 @@
 // game/scenes/PreloadScene.js
-// Genera texturas placeholder con Graphics de Phaser.
-// Cuando tengan sprites reales, reemplazar aquí con this.load.image(...)
+// Genera todas las texturas placeholder con Graphics de Phaser.
 
 import Phaser from 'phaser'
 
@@ -10,93 +9,68 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
-    // ── Textura del JUGADOR (círculo púrpura con glow) ────────
-    const playerGfx = this.make.graphics({ x: 0, y: 0, add: false })
+    // ── JUGADOR (círculo púrpura) ─────────────────────────
+    const pg = this.make.graphics({ x: 0, y: 0, add: false })
+    pg.fillStyle(0x5500cc, 0.35); pg.fillCircle(22, 22, 20)
+    pg.fillStyle(0x7b2fff, 1);    pg.fillCircle(22, 22, 15)
+    pg.fillStyle(0xaa77ff, 1);    pg.fillCircle(17, 16, 6)
+    pg.fillStyle(0xffffff, 1);    pg.fillCircle(16, 15, 3)
+    pg.generateTexture('player', 44, 44); pg.destroy()
 
-    // Sombra/halo exterior
-    playerGfx.fillStyle(0x5500cc, 0.35)
-    playerGfx.fillCircle(22, 22, 20)
+    // ── SUELO ─────────────────────────────────────────────
+    const fg = this.make.graphics({ x: 0, y: 0, add: false })
+    fg.fillStyle(0x13131c, 1); fg.fillRect(0, 0, 50, 50)
+    fg.lineStyle(1, 0x1e1e30, 0.5); fg.strokeRect(0, 0, 50, 50)
+    fg.fillStyle(0x0f0f1a, 0.3); fg.fillRect(2, 2, 20, 20)
+    fg.generateTexture('floor', 50, 50); fg.destroy()
 
-    // Cuerpo principal
-    playerGfx.fillStyle(0x7b2fff, 1)
-    playerGfx.fillCircle(22, 22, 15)
+    // ── PARED ─────────────────────────────────────────────
+    const wg = this.make.graphics({ x: 0, y: 0, add: false })
+    wg.fillStyle(0x1a1a28, 1); wg.fillRect(0, 0, 50, 50)
+    wg.lineStyle(1, 0x2a2a40, 0.8); wg.strokeRect(1, 1, 48, 48)
+    wg.fillStyle(0x222235, 1); wg.fillRect(4, 4, 42, 20); wg.fillRect(4, 28, 42, 18)
+    wg.generateTexture('wall', 50, 50); wg.destroy()
 
-    // Highlight
-    playerGfx.fillStyle(0xaa77ff, 1)
-    playerGfx.fillCircle(17, 16, 6)
+    // ── ENEMIGO MELEE (rojo con cuernos) ──────────────────
+    const eg = this.make.graphics({ x: 0, y: 0, add: false })
+    eg.fillStyle(0x880000, 0.35); eg.fillCircle(22, 22, 20)
+    eg.fillStyle(0xcc1111, 1);    eg.fillCircle(22, 22, 14)
+    eg.fillStyle(0xff3333, 1);    eg.fillCircle(17, 16, 7)
+    eg.fillStyle(0xffffff, 1);    eg.fillCircle(16, 15, 3)
+    eg.fillStyle(0x000000, 1);    eg.fillCircle(17, 16, 1.5)
+    eg.fillStyle(0x880000, 1)
+    eg.fillTriangle(16, 8, 12, 0, 20, 0)
+    eg.fillTriangle(28, 8, 24, 0, 32, 0)
+    eg.generateTexture('enemy', 44, 44); eg.destroy()
 
-    // Core brillante
-    playerGfx.fillStyle(0xffffff, 1)
-    playerGfx.fillCircle(16, 15, 3)
+    // ── ARQUERO (azul oscuro con capucha) ─────────────────
+    const ag = this.make.graphics({ x: 0, y: 0, add: false })
+    ag.fillStyle(0x001144, 0.35); ag.fillCircle(22, 22, 20)
+    ag.fillStyle(0x1a3a88, 1);    ag.fillCircle(22, 22, 14)
+    ag.fillStyle(0x44aaff, 1);    ag.fillCircle(17, 16, 7)
+    ag.fillStyle(0xffffff, 1);    ag.fillCircle(16, 15, 3)
+    ag.fillStyle(0x000000, 1);    ag.fillCircle(17, 16, 1.5)
+    // Capucha (arco en la parte superior)
+    ag.lineStyle(3, 0x88ccff, 1)
+    ag.beginPath()
+    ag.arc(22, 22, 18, Phaser.Math.DegToRad(200), Phaser.Math.DegToRad(340), false)
+    ag.strokePath()
+    ag.generateTexture('archer', 44, 44); ag.destroy()
 
-    playerGfx.generateTexture('player', 44, 44)
-    playerGfx.destroy()
+    // ── FLECHA ────────────────────────────────────────────
+    const arrowG = this.make.graphics({ x: 0, y: 0, add: false })
+    // Cuerpo de la flecha
+    arrowG.fillStyle(0xaa8833, 1)
+    arrowG.fillRect(0, 3, 14, 2)
+    // Punta
+    arrowG.fillStyle(0xddcc55, 1)
+    arrowG.fillTriangle(14, 0, 14, 8, 20, 4)
+    // Plumas
+    arrowG.fillStyle(0xffffff, 0.8)
+    arrowG.fillTriangle(0, 0, 4, 4, 0, 4)
+    arrowG.fillTriangle(0, 8, 4, 4, 0, 4)
+    arrowG.generateTexture('arrow', 20, 8); arrowG.destroy()
 
-    // ── Textura del SUELO (losa oscura con cuadrícula) ────────
-    const floorGfx = this.make.graphics({ x: 0, y: 0, add: false })
-
-    floorGfx.fillStyle(0x13131c, 1)
-    floorGfx.fillRect(0, 0, 50, 50)
-
-    // Líneas de cuadrícula sutiles
-    floorGfx.lineStyle(1, 0x1e1e30, 0.5)
-    floorGfx.strokeRect(0, 0, 50, 50)
-
-    // Variación aleatoria de color en la losa
-    floorGfx.fillStyle(0x0f0f1a, 0.3)
-    floorGfx.fillRect(2, 2, 20, 20)
-
-    floorGfx.generateTexture('floor', 50, 50)
-    floorGfx.destroy()
-
-    // ── Textura de la PARED ───────────────────────────────────
-    const wallGfx = this.make.graphics({ x: 0, y: 0, add: false })
-
-    wallGfx.fillStyle(0x1a1a28, 1)
-    wallGfx.fillRect(0, 0, 50, 50)
-
-    wallGfx.lineStyle(1, 0x2a2a40, 0.8)
-    wallGfx.strokeRect(1, 1, 48, 48)
-
-    wallGfx.fillStyle(0x222235, 1)
-    wallGfx.fillRect(4, 4, 42, 20)
-    wallGfx.fillRect(4, 28, 42, 18)
-
-    wallGfx.generateTexture('wall', 50, 50)
-    wallGfx.destroy()
-
-    // ── Textura del ENEMIGO (rombo rojo con brillo) ───────────
-    const enemyGfx = this.make.graphics({ x: 0, y: 0, add: false })
-
-    // Aura exterior
-    enemyGfx.fillStyle(0x880000, 0.35)
-    enemyGfx.fillCircle(22, 22, 20)
-
-    // Cuerpo rojo oscuro
-    enemyGfx.fillStyle(0xcc1111, 1)
-    enemyGfx.fillCircle(22, 22, 14)
-
-    // Detalle interior
-    enemyGfx.fillStyle(0xff3333, 1)
-    enemyGfx.fillCircle(17, 16, 7)
-
-    // Ojo brillante
-    enemyGfx.fillStyle(0xffffff, 1)
-    enemyGfx.fillCircle(16, 15, 3)
-
-    // Pupila
-    enemyGfx.fillStyle(0x000000, 1)
-    enemyGfx.fillCircle(17, 16, 1.5)
-
-    // Cuernos (triángulos)
-    enemyGfx.fillStyle(0x880000, 1)
-    enemyGfx.fillTriangle(16, 8, 12, 0, 20, 0)
-    enemyGfx.fillTriangle(28, 8, 24, 0, 32, 0)
-
-    enemyGfx.generateTexture('enemy', 44, 44)
-    enemyGfx.destroy()
-
-    // Ir a la escena de juego
     this.scene.start('GameScene')
   }
 }

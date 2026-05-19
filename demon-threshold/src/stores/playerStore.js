@@ -1,5 +1,4 @@
 // stores/playerStore.js
-// Solo estadísticas del jugador. La posición la maneja Phaser.
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
@@ -14,18 +13,22 @@ export const usePlayerStore = defineStore('player', () => {
   const xp       = ref(0)
   const xpToNext = ref(PLAYER_BASE.xpToNext)
 
+  // true cuando toca pantalla de mejoras (cada 4 niveles)
+  const pendingUpgrade = ref(false)
+
   const hpPercent = computed(() => Math.max(0, (hp.value / maxHp.value) * 100))
   const xpPercent = computed(() => Math.min(100, (xp.value / xpToNext.value) * 100))
   const isAlive   = computed(() => hp.value > 0)
 
   function reset() {
-    maxHp.value    = PLAYER_BASE.maxHp
-    hp.value       = PLAYER_BASE.maxHp
-    speed.value    = PLAYER_BASE.speed
-    damage.value   = PLAYER_BASE.damage
-    level.value    = 1
-    xp.value       = 0
-    xpToNext.value = PLAYER_BASE.xpToNext
+    maxHp.value       = PLAYER_BASE.maxHp
+    hp.value          = PLAYER_BASE.maxHp
+    speed.value       = PLAYER_BASE.speed
+    damage.value      = PLAYER_BASE.damage
+    level.value       = 1
+    xp.value          = 0
+    xpToNext.value    = PLAYER_BASE.xpToNext
+    pendingUpgrade.value = false
   }
 
   function takeDamage(amount) {
@@ -38,14 +41,44 @@ export const usePlayerStore = defineStore('player', () => {
       xp.value      -= xpToNext.value
       level.value   += 1
       xpToNext.value = Math.floor(xpToNext.value * 1.45)
-      return true // level up!
+
+      // Cada 4 niveles → pantalla de mejoras
+      if (level.value % 4 === 0) {
+        pendingUpgrade.value = true
+      }
+
+      return true
     }
     return false
   }
 
+  // Aplicar la mejora elegida por el jugador
+  function applyUpgrade(upgradeId) {
+    switch (upgradeId) {
+      case 'damage':
+        damage.value = Math.round(damage.value * 1.15)
+        break
+      case 'speed':
+        speed.value = Math.round(speed.value * 1.10)
+        break
+      case 'maxHp':
+        maxHp.value = Math.round(maxHp.value * 1.20)
+        hp.value    = Math.min(hp.value + Math.round(maxHp.value * 0.10), maxHp.value)
+        break
+      case 'healHp':
+        hp.value = Math.min(hp.value + Math.round(maxHp.value * 0.30), maxHp.value)
+        break
+      case 'damageSpeed':
+        damage.value = Math.round(damage.value * 1.08)
+        speed.value  = Math.round(speed.value  * 1.05)
+        break
+    }
+    pendingUpgrade.value = false
+  }
+
   return {
-    maxHp, hp, speed, damage, level, xp, xpToNext,
+    maxHp, hp, speed, damage, level, xp, xpToNext, pendingUpgrade,
     hpPercent, xpPercent, isAlive,
-    reset, takeDamage, gainXp
+    reset, takeDamage, gainXp, applyUpgrade
   }
 })

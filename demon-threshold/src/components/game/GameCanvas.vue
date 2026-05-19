@@ -56,11 +56,15 @@ watch(
       if (scene) phaserGame.scene.pause('GameScene')
     }
 
-    if (newPhase === 'playing' && oldPhase === 'paused') {
+    if (newPhase === 'playing' && (oldPhase === 'paused' || oldPhase === 'upgrading')) {
       if (scene) phaserGame.scene.resume('GameScene')
     }
 
     // FIX: gameover → pausar Phaser para que no siga corriendo
+    if (newPhase === 'upgrading') {
+      if (scene) phaserGame.scene.pause('GameScene')
+    }
+
     if (newPhase === 'gameover') {
       if (scene) phaserGame.scene.pause('GameScene')
     }

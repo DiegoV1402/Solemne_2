@@ -24,16 +24,16 @@
 
 ### 🔹 Semana 3
 *Objetivo: Inteligencia artificial básica y colisiones.*
-- [ ] Añadir enemigos y lógica de persecución al jugador.
-- [ ] Implementar sistema de colisiones y daño.
-- [ ] Desarrollar la pantalla de muerte (Game Over).
-- [ ] Agregar gitignore e implementar actions.
-- [ ] Añadir la arquitectura de carpetas.
+- [x] Añadir enemigos y lógica de persecución al jugador.
+- [x] Implementar sistema de colisiones y daño.
+- [x] Desarrollar la pantalla de muerte (Game Over).
+- [x] Agregar gitignore e implementar actions.
+- [x] Añadir la arquitectura de carpetas.
 
 
 ### 🔹 Semana 4
 *Objetivo: Finalización del sistema y DevOps.*
-- [ ] Programar sistema de mejoras (power-ups).
+- [x] Programar sistema de mejoras (power-ups).
 - [ ] Crear sistema de mazmorras (Dungeons) y cambio de niveles.
 - [ ] Crear `Dockerfile` y configurar `main.yml` (GitHub Actions).
 - [ ] Control de calidad: Verificación de bugs.

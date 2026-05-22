@@ -6,9 +6,9 @@ import { ARCHER_BASE, ARCHER_SIZE } from './enemyConfig'
 const AI = { PATROL: 'patrol', REPOSITION: 'reposition', SHOOT: 'shoot' }
 
 export class Archer {
-  constructor(scene, x, y, group, arrowGroup) {
+  constructor(scene, x, y, group, arrowGroup, configOverride = null) {
     this.scene      = scene
-    this.config     = { ...ARCHER_BASE }
+    this.config = configOverride ? { ...configOverride } : { ...ARCHER_BASE }
     this.type       = 'archer'
     this.arrowGroup = arrowGroup  // grupo compartido de flechas
 

@@ -1,13 +1,14 @@
 // systems/EnemyManager.js
+// Acepta un _colTracker para registrar colliders en GameScene
+// y que sean limpiados al cambiar de sala.
 
 import Phaser from 'phaser'
 import { Enemy }  from '@/entities/Enemy'
 import { Archer } from '@/entities/Archer'
-import { ENEMY_SPAWN } from '@/entities/enemyConfig'
+import { Boss }   from '@/game/entities/Boss'
+import { ENEMY_BASE, ARCHER_BASE } from '@/entities/enemyConfig'
 
-const SPAWN_MARGIN = 80
-const GAME_W = 900
-const GAME_H = 600
+const GAME_W = 900, GAME_H = 600
 
 export class EnemyManager {
   constructor(scene, gameStore, playerStore) {
@@ -15,174 +16,183 @@ export class EnemyManager {
     this.gameStore   = gameStore
     this.playerStore = playerStore
 
-    this.enemies    = []          // Enemy[] + Archer[]
-    this.group      = scene.physics.add.group()   // sprites de enemigos
-    this.arrowGroup = scene.physics.add.group()   // sprites de flechas
+    this.enemies    = []
+    this.group      = scene.physics.add.group()
+    this.arrowGroup = scene.physics.add.group()
     this.destroyed  = false
-    this.waveTimers = []
-    this.waveNumber = 0
+    this._activated   = false
+    this._roomCleared = false
+    this._roomType    = null
+    this._colTracker  = null   // función inyectada desde GameScene
 
-    this._spawnWave(ENEMY_SPAWN.initial)
-    this._scheduleNextWave()
+    this.onRoomCleared   = null
+    this.onBossDefeated  = null
   }
 
-  // ── Update ────────────────────────────────────────────────
-  update(time, delta, playerSprite) {
+  // GameScene inyecta su función _col para rastrear colliders
+  setColliderTracker(fn) { this._colTracker = fn }
+
+  // Helper interno que usa el tracker de GameScene
+  _addCol(a, b, cb) {
+    if (this._colTracker) return this._colTracker(a, b, cb)
+    return cb
+      ? this.scene.physics.add.collider(a, b, cb, null, this)
+      : this.scene.physics.add.collider(a, b)
+  }
+
+  // ── Activar sala ───────────────────────────────────────────
+  activate(roomType) {
+    if (this._activated || this.destroyed) return
+    this._activated = true
+    this._roomType  = roomType
+
+    if (roomType === 'boss') {
+      this._spawnBoss()
+    } else {
+      this._spawnEnemies(Phaser.Math.Between(5, 6))
+    }
+  }
+
+  // ── Update ─────────────────────────────────────────────────
+  update(time, delta, player) {
     if (this.destroyed || this.gameStore.phase !== 'playing') return
+    if (this._roomCleared) return
 
     this.enemies = this.enemies.filter(e => e.isAlive)
 
-    for (const enemy of this.enemies) {
-      enemy.update(time, delta, playerSprite)
+    for (const e of this.enemies) {
+      e.update(time, delta, player)
 
-      // Solo melee ataca por contacto
-      if (enemy.type === 'melee' && enemy.canAttack(time)) {
-        const dist = Phaser.Math.Distance.Between(
-          enemy.x, enemy.y, playerSprite.x, playerSprite.y
-        )
-        if (dist < 28) {
-          enemy.registerAttack(time)
-          this._dealMeleeDamage(playerSprite, enemy)
+      if (e.type === 'melee') {
+        const d = Phaser.Math.Distance.Between(e.x, e.y, player.x, player.y)
+        if (d < 30 && e.canAttack(time)) {
+          e.registerAttack(time); this._hitPlayer(player, e)
         }
       }
+      if (e.type === 'boss') {
+        const d = Phaser.Math.Distance.Between(e.x, e.y, player.x, player.y)
+        if (d < 42 && e.canDealDamage?.()) {
+          e.resetDamageCooldown?.(); this._hitPlayer(player, e)
+        }
+        if (e.isInStompRange?.(player)) this._hitPlayer(player, e, 16)
+      }
     }
 
-    // Mover flechas y comprobar colisión con jugador
-    this._updateArrows(playerSprite)
+    this._tickArrows(player)
+
+    // Verificar sala limpia
+    if (this._activated && !this._roomCleared && this.enemies.filter(e => e.isAlive).length === 0) {
+      this._roomCleared = true
+      this.gameStore.completeCurrentRoom()
+      if (this._roomType !== 'boss' && this.onRoomCleared) this.onRoomCleared()
+    }
   }
 
-  _updateArrows(playerSprite) {
-    this.arrowGroup.getChildren().forEach(arrow => {
-      if (!arrow.active) return
+  // ── Spawn ──────────────────────────────────────────────────
+  _spawnEnemies(count) {
+    if (this.destroyed) return
+    const diff = this.gameStore.difficulty
 
-      // Fuera de pantalla → destruir
-      if (arrow.x < 0 || arrow.x > GAME_W || arrow.y < 0 || arrow.y > GAME_H) {
-        arrow.destroy()
-        return
-      }
+    for (let i = 0; i < count; i++) {
+      const pos = this._rndPos()
+      const isA = Math.random() < diff.archerChance
+      const cfg = isA ? { ...ARCHER_BASE } : { ...ENEMY_BASE }
+      cfg.hp      = Math.round(cfg.hp      * diff.hpMult)
+      cfg.speed   = Math.round(cfg.speed   * diff.speedMult)
+      cfg.damage  = Math.round(cfg.damage  * diff.damageMult)
+      cfg.xpReward = Math.round(cfg.xpReward * (1 + this.gameStore.currentRoomId * 0.08))
 
-      // Colisión con jugador
-      const dist = Phaser.Math.Distance.Between(
-        arrow.x, arrow.y, playerSprite.x, playerSprite.y
-      )
-      if (dist < 22) {
-        this._dealArrowDamage(playerSprite, arrow)
-        arrow.destroy()
-      }
-    })
-  }
-
-  _dealMeleeDamage(playerSprite, enemy) {
-    this.playerStore.takeDamage(enemy.config.damage)
-    const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, playerSprite.x, playerSprite.y)
-    playerSprite.setVelocity(
-      Math.cos(angle) * enemy.config.knockback,
-      Math.sin(angle) * enemy.config.knockback
-    )
-    this._flashPlayer(playerSprite)
-    if (!this.playerStore.isAlive) this.gameStore.gameOver()
-  }
-
-  _dealArrowDamage(playerSprite, arrow) {
-    this.playerStore.takeDamage(arrow._damage || 12)
-    // Knockback en la dirección de la flecha
-    const angle = arrow.rotation
-    playerSprite.setVelocity(Math.cos(angle) * 150, Math.sin(angle) * 150)
-    this._flashPlayer(playerSprite)
-
-    // Pequeño efecto de impacto
-    const hit = this.scene.add.circle(arrow.x, arrow.y, 8, 0x44aaff, 0.8).setDepth(15)
-    this.scene.tweens.add({
-      targets: hit,
-      alpha: 0, scaleX: 2, scaleY: 2,
-      duration: 200,
-      onComplete: () => hit.destroy()
-    })
-
-    if (!this.playerStore.isAlive) this.gameStore.gameOver()
-  }
-
-  _flashPlayer(playerSprite) {
-    playerSprite.setTint(0xff0000)
-    this.scene.time.delayedCall(200, () => {
-      if (playerSprite && playerSprite.active) playerSprite.clearTint()
-    })
-  }
-
-  // ── Colisión flechas con paredes ─────────────────────────
-  addWallCollider(walls) {
-    this.scene.physics.add.collider(this.group, walls)
-    this.scene.physics.add.collider(this.group, this.group)
-
-    // Flechas se destruyen al tocar paredes
-    this.scene.physics.add.collider(this.arrowGroup, walls, (arrow) => {
-      // Efecto de impacto en muro
-      const spark = this.scene.add.circle(arrow.x, arrow.y, 5, 0xffcc44, 0.9).setDepth(15)
-      this.scene.tweens.add({
-        targets: spark,
-        alpha: 0, scale: 2,
-        duration: 150,
-        onComplete: () => spark.destroy()
-      })
-      arrow.destroy()
-    })
-  }
-
-  // ── Spawn ─────────────────────────────────────────────────
-  _spawnWave(count) {
-    if (this.destroyed || this.gameStore.phase !== 'playing') return
-
-    const current = this.enemies.filter(e => e.isAlive).length
-    const toSpawn = Math.min(count, ENEMY_SPAWN.maxEnemies - current)
-
-    for (let i = 0; i < toSpawn; i++) {
-      const pos     = this._randomSpawnPos()
-      const isArcher = Math.random() < ENEMY_SPAWN.archerChance
-
-      const enemy = isArcher
-        ? new Archer(this.scene, pos.x, pos.y, this.group, this.arrowGroup)
-        : new Enemy(this.scene, pos.x, pos.y, this.group)
-
+      const enemy = isA
+        ? new Archer(this.scene, pos.x, pos.y, this.group, this.arrowGroup, cfg)
+        : new Enemy (this.scene, pos.x, pos.y, this.group, cfg)
       this.enemies.push(enemy)
     }
-
-    this.waveNumber++
   }
 
-  _scheduleNextWave() {
-    if (this.destroyed) return
-    const t = this.scene.time.addEvent({
-      delay: ENEMY_SPAWN.waveInterval,
-      callback: () => {
-        if (this.destroyed || this.gameStore.phase !== 'playing') return
-        const alive    = this.enemies.filter(e => e.isAlive).length
-        const newCount = Math.min(
-          ENEMY_SPAWN.perWave + Math.floor(this.waveNumber * 0.5),
-          ENEMY_SPAWN.maxEnemies - alive
-        )
-        if (newCount > 0) this._spawnWave(newCount)
-        this._scheduleNextWave()
-      }
+  _spawnBoss() {
+    const boss = new Boss(this.scene, 450, 200, this.group, () => {
+      this.gameStore.enemiesDefeated++
+      this.playerStore.gainXp(150)
+      if (this.onBossDefeated) this.onBossDefeated()
     })
-    this.waveTimers.push(t)
+    this.enemies.push(boss)
   }
 
-  _randomSpawnPos() {
-    const side = Math.floor(Math.random() * 4)
-    let x, y
+  // ── Colisionadores ─────────────────────────────────────────
+  addWallCollider(walls) {
+    this._addCol(this.group, walls)
+    this._addCol(this.group, this.group)
+    // Flechas vs paredes
+    this.scene.physics.add.collider(this.arrowGroup, walls, (arrow) => {
+      this._arrowSpark(arrow.x, arrow.y); arrow.destroy()
+    })
+  }
+
+  addObstacleCollider(obs) {
+    this._addCol(this.group, obs)
+    this.scene.physics.add.collider(this.arrowGroup, obs, (arrow) => arrow.destroy())
+  }
+
+  // Collider enemigos ↔ bloque de puerta (registrado en GameScene)
+  addDoorBlockCollider(block) {
+    if (!block?.body) return
+    this._addCol(this.group, block)
+  }
+
+  // ── Flechas ────────────────────────────────────────────────
+  _tickArrows(player) {
+    this.arrowGroup.getChildren().forEach(arrow => {
+      if (!arrow.active) return
+      if (arrow.x < 0 || arrow.x > GAME_W || arrow.y < 0 || arrow.y > GAME_H) {
+        arrow.destroy(); return
+      }
+      const d = Phaser.Math.Distance.Between(arrow.x, arrow.y, player.x, player.y)
+      if (d < 22) { this._hitPlayerArrow(player, arrow); arrow.destroy() }
+    })
+  }
+
+  // ── Daño al jugador ────────────────────────────────────────
+  _hitPlayer(player, enemy, dmgOverride = null) {
+    const dmg = dmgOverride ?? enemy.config?.damage ?? 8
+    this.playerStore.takeDamage(dmg)
+    const a = Phaser.Math.Angle.Between(enemy.x, enemy.y, player.x, player.y)
+    const kb = enemy.type === 'boss' ? 260 : 180
+    player.setVelocity(Math.cos(a) * kb, Math.sin(a) * kb)
+    this._flashPlayer(player)
+    if (!this.playerStore.isAlive) this.gameStore.gameOver()
+  }
+
+  _hitPlayerArrow(player, arrow) {
+    this.playerStore.takeDamage(arrow._damage || 12)
+    player.setVelocity(Math.cos(arrow.rotation) * 140, Math.sin(arrow.rotation) * 140)
+    this._flashPlayer(player)
+    this._arrowSpark(arrow.x, arrow.y)
+    if (!this.playerStore.isAlive) this.gameStore.gameOver()
+  }
+
+  _flashPlayer(player) {
+    player.setTint(0xff2222)
+    this.scene.time.delayedCall(210, () => { if (player?.active) player.clearTint() })
+  }
+
+  _arrowSpark(x, y) {
+    const s = this.scene.add.circle(x, y, 6, 0xffcc44, 0.9).setDepth(15)
+    this.scene.tweens.add({ targets: s, scale: 2.2, alpha: 0, duration: 170, onComplete: () => s.destroy() })
+  }
+
+  // ── Posición de spawn ──────────────────────────────────────
+  _rndPos() {
+    const m = 90, side = Math.floor(Math.random() * 4)
     switch (side) {
-      case 0: x = Phaser.Math.Between(SPAWN_MARGIN, GAME_W - SPAWN_MARGIN); y = Phaser.Math.Between(SPAWN_MARGIN, SPAWN_MARGIN + 80); break
-      case 1: x = Phaser.Math.Between(SPAWN_MARGIN, GAME_W - SPAWN_MARGIN); y = Phaser.Math.Between(GAME_H - SPAWN_MARGIN - 80, GAME_H - SPAWN_MARGIN); break
-      case 2: x = Phaser.Math.Between(SPAWN_MARGIN, SPAWN_MARGIN + 80);     y = Phaser.Math.Between(SPAWN_MARGIN, GAME_H - SPAWN_MARGIN); break
-      default: x = Phaser.Math.Between(GAME_W - SPAWN_MARGIN - 80, GAME_W - SPAWN_MARGIN); y = Phaser.Math.Between(SPAWN_MARGIN, GAME_H - SPAWN_MARGIN); break
+      case 0: return { x: Phaser.Math.Between(m, GAME_W - m), y: Phaser.Math.Between(m, m + 80) }
+      case 1: return { x: Phaser.Math.Between(m, GAME_W - m), y: Phaser.Math.Between(GAME_H - m - 80, GAME_H - m) }
+      case 2: return { x: Phaser.Math.Between(m, m + 80),     y: Phaser.Math.Between(m, GAME_H - m) }
+      default:return { x: Phaser.Math.Between(GAME_W - m - 80, GAME_W - m), y: Phaser.Math.Between(m, GAME_H - m) }
     }
-    return { x, y }
   }
 
   destroy() {
     this.destroyed = true
-    this.waveTimers.forEach(t => { if (t) t.remove() })
-    this.waveTimers = []
     this.enemies.forEach(e => e.destroy())
     this.enemies = []
     this.arrowGroup.clear(true, true)

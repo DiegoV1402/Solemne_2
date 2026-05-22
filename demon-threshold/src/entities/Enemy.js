@@ -6,9 +6,9 @@ import { ENEMY_BASE, ENEMY_SIZE } from './enemyConfig'
 const AI = { PATROL: 'patrol', CHASE: 'chase' }
 
 export class Enemy {
-  constructor(scene, x, y, group) {
+  constructor(scene, x, y, group, configOverride = null) {
     this.scene  = scene
-    this.config = { ...ENEMY_BASE }
+    this.config = configOverride ? { ...configOverride } : { ...ENEMY_BASE }
     this.type   = 'melee'
 
     this.sprite = group.create(x, y, 'enemy')

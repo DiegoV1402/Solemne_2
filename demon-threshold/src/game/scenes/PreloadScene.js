@@ -71,6 +71,29 @@ export class PreloadScene extends Phaser.Scene {
     arrowG.fillTriangle(0, 8, 4, 4, 0, 4)
     arrowG.generateTexture('arrow', 20, 8); arrowG.destroy()
 
+
+    // ── BOSS ─────────────────────────────────────────────────
+    const bg = this.make.graphics({ x: 0, y: 0, add: false })
+    bg.fillStyle(0x550000, 0.4); bg.fillCircle(36, 36, 34)
+    bg.fillStyle(0xaa0000, 1);   bg.fillCircle(36, 36, 26)
+    bg.fillStyle(0xff2200, 1);   bg.fillCircle(28, 28, 14)
+    bg.fillStyle(0xffffff, 1);   bg.fillCircle(26, 26, 5)
+    bg.fillStyle(0x000000, 1);   bg.fillCircle(28, 28, 3)
+    // Cuernos dorados
+    bg.fillStyle(0xffaa00, 1)
+    bg.fillTriangle(20, 12,  8,  0, 28, 10)
+    bg.fillTriangle(52, 12, 64,  0, 44, 10)
+    // Corona
+    bg.lineStyle(3, 0xffcc00, 1)
+    bg.beginPath()
+    bg.moveTo(16, 18); bg.lineTo(22, 8); bg.lineTo(28, 18)
+    bg.lineTo(36, 6);  bg.lineTo(44, 18); bg.lineTo(50, 8); bg.lineTo(56, 18)
+    bg.strokePath()
+    bg.generateTexture('boss', 72, 72); bg.destroy()
+
     this.scene.start('GameScene')
   }
 }
+
+// ── BOSS (grande, rojo oscuro con cuernos dorados) ────────────
+// (agregado para el sistema de salas con boss final)

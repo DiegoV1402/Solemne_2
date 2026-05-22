@@ -132,8 +132,8 @@ export class SwordAttack {
       const diff = Phaser.Math.Angle.Wrap(angleToEnemy - angle)
       if (Math.abs(diff) > halfArc) continue
 
-      // ¡Impacto!
-      const died = enemy.takeDamage(SWORD_DAMAGE)
+      // ¡Impacto! — usa el daño del jugador (escala con mejoras)
+      const died = enemy.takeDamage(this.playerStore.damage)
       if (died) {
         this.enemyManager.gameStore.enemiesDefeated++
         this.playerStore.gainXp(enemy.config.xpReward)

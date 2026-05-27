@@ -122,15 +122,15 @@ export class EnemyManager {
   addWallCollider(walls) {
     this._addCol(this.group, walls)
     this._addCol(this.group, this.group)
-    // Flechas vs paredes
-    this.scene.physics.add.collider(this.arrowGroup, walls, (arrow) => {
+    // Flechas vs paredes — usa _addCol para que se rastrée y elimine al cambiar sala
+    this._addCol(this.arrowGroup, walls, (arrow) => {
       this._arrowSpark(arrow.x, arrow.y); arrow.destroy()
     })
   }
 
   addObstacleCollider(obs) {
     this._addCol(this.group, obs)
-    this.scene.physics.add.collider(this.arrowGroup, obs, (arrow) => arrow.destroy())
+    this._addCol(this.arrowGroup, obs, (arrow) => arrow.destroy())
   }
 
   // Collider enemigos ↔ bloque de puerta (registrado en GameScene)
@@ -193,9 +193,11 @@ export class EnemyManager {
 
   destroy() {
     this.destroyed = true
-    this.enemies.forEach(e => e.destroy())
+    this.enemies.forEach(e => { try { e.destroy() } catch(_){} })
     this.enemies = []
-    this.arrowGroup.clear(true, true)
+    // Destruir los grupos de physics completamente
+    try { this.arrowGroup.destroy(true) } catch(_){}
+    try { this.group.destroy(true) } catch(_){}
   }
 
   get enemyGroup()  { return this.group }

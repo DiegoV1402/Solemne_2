@@ -25,8 +25,10 @@ export class RoomBuilder {
    * @returns {{ walls, obstacles, visualObjects }}
    */
   static build(scene, roomId, layoutName, doorDirs = []) {
-    const theme   = THEMES[roomId % THEMES.length]
-    const skipSet = new Set()
+    const normalizedRoomId = Number.isFinite(Number(roomId)) ? Number(roomId) : 0
+    const themeIndex      = normalizedRoomId % THEMES.length
+    const theme           = THEMES[themeIndex] ?? THEMES[0]
+    const skipSet         = new Set()
 
     for (const dir of doorDirs) {
       DOOR_DEFS[dir]?.skipTiles.forEach(({ row, col }) => skipSet.add(`${row},${col}`))
@@ -97,6 +99,8 @@ export class RoomBuilder {
   // ── Obstáculos por layout ──────────────────────────────────
   static _buildLayout(scene, layout, obstacles, theme) {
     const extras = []
+    if (!scene || !obstacles || !theme) return extras
+
     switch (layout) {
       case 'pillars':   RoomBuilder._pillars(scene, obstacles, theme); break
       case 'cross':     RoomBuilder._cross(scene, obstacles, theme);   break
@@ -114,19 +118,37 @@ export class RoomBuilder {
   }
 
   static _cross(scene, obs, theme) {
-    [[350,300],[400,300],[500,300],[550,300]].forEach(([x,y]) =>
-      RoomBuilder._obstacle(scene, obs, x, y, TILE, TILE, theme))
-    [[450,150],[450,200],[450,400],[450,450]].forEach(([x,y]) =>
-      RoomBuilder._obstacle(scene, obs, x, y, TILE, TILE, theme))
+    const first = [[350,300], [400,300], [500,300], [550,300]]
+    for (let i = 0; i < first.length; i++) {
+      const [x, y] = first[i]
+      RoomBuilder._obstacle(scene, obs, x, y, TILE, TILE, theme)
+    }
+
+    const second = [[450,150], [450,200], [450,400], [450,450]]
+    for (let i = 0; i < second.length; i++) {
+      const [x, y] = second[i]
+      RoomBuilder._obstacle(scene, obs, x, y, TILE, TILE, theme)
+    }
   }
 
   static _corridors(scene, obs, theme) {
-    [[200,150],[200,200],[200,350],[200,400],[200,450]].forEach(([x,y]) =>
-      RoomBuilder._obstacle(scene, obs, x, y, TILE, TILE, theme))
-    [[700,150],[700,200],[700,350],[700,400],[700,450]].forEach(([x,y]) =>
-      RoomBuilder._obstacle(scene, obs, x, y, TILE, TILE, theme))
-    [[450,200],[450,400]].forEach(([x,y]) =>
-      RoomBuilder._obstacle(scene, obs, x, y, 40, 40, theme))
+    const left = [[200,150], [200,200], [200,350], [200,400], [200,450]]
+    for (let i = 0; i < left.length; i++) {
+      const [x, y] = left[i]
+      RoomBuilder._obstacle(scene, obs, x, y, TILE, TILE, theme)
+    }
+
+    const right = [[700,150], [700,200], [700,350], [700,400], [700,450]]
+    for (let i = 0; i < right.length; i++) {
+      const [x, y] = right[i]
+      RoomBuilder._obstacle(scene, obs, x, y, TILE, TILE, theme)
+    }
+
+    const center = [[450,200], [450,400]]
+    for (let i = 0; i < center.length; i++) {
+      const [x, y] = center[i]
+      RoomBuilder._obstacle(scene, obs, x, y, 40, 40, theme)
+    }
   }
 
   static _arena(scene, obs, theme, extras) {
@@ -141,15 +163,22 @@ export class RoomBuilder {
 
   // ── Obstacle helper ────────────────────────────────────────
   static _obstacle(scene, group, x, y, w, h, theme) {
-    const key = `obs_${theme.wall}_${w}_${h}`
+    if (!scene || !scene.textures || !scene.make || !group || !group.create || !theme) {
+      return
+    }
+
+    const wallColor = theme.wall ?? 0x999999
+    const accent    = theme.accent ?? 0x777777
+    const key       = `obs_${wallColor}_${w}_${h}`
     if (!scene.textures.exists(key)) {
       const g = scene.make.graphics({ x: 0, y: 0, add: false })
-      g.fillStyle(theme.wall, 1);     g.fillRect(0, 0, w, h)
-      g.lineStyle(2, theme.accent, 0.5); g.strokeRect(1, 1, w - 2, h - 2)
+      g.fillStyle(wallColor, 1);     g.fillRect(0, 0, w, h)
+      g.lineStyle(2, accent, 0.5);   g.strokeRect(1, 1, w - 2, h - 2)
       g.fillStyle(0xffffff, 0.05);    g.fillRect(3, 3, w - 6, 8)
       g.generateTexture(key, w, h);   g.destroy()
     }
     const o = group.create(x, y, key)
+    if (!o) return
     o.setDisplaySize(w, h); o.refreshBody()
   }
 

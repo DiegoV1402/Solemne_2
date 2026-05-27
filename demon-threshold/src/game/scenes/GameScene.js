@@ -123,20 +123,31 @@ export class GameScene extends Phaser.Scene {
 
   // ── Destrucción limpia ─────────────────────────────────────
   _destroyRoomSystems() {
-    // A) Eliminar todos los colliders ANTES de destruir los grupos
-    //    (evita que Phaser procese colisores con bodies destruidos → freeze)
-    this._roomColliders.forEach(c => {
-      try { this.physics.world.removeCollider(c) } catch (_) {}
-    })
+    // A) ELIMINAR TODOS LOS COLLIDERS DEL MUNDO DE PHYSICS DE GOLPE.
+    //    Esto garantiza que no quede NINGÚN colisionador huérfano,
+    //    independientemente de si fue registrado en _roomColliders o no.
+    //    Es el approach más seguro: más vale destruir todos y recrearlos
+    //    en _loadRoom que arriesgarse a dejar alguno sin limpiar.
+    try {
+      // Método directo de Phaser para limpiar todos los colliders de la escena
+      if (this.physics?.world?.colliders) {
+        // Obtener todos los activos y removerlos uno a uno
+        const active = this.physics.world.colliders.getActive()
+        for (let i = active.length - 1; i >= 0; i--) {
+          this.physics.world.removeCollider(active[i])
+        }
+      }
+    } catch (_) {}
     this._roomColliders = []
 
     // B) Destruir sistemas lógicos
     if (this.enemyManager) { this.enemyManager.destroy(); this.enemyManager = null }
     if (this.swordAttack)  { this.swordAttack.destroy();  this.swordAttack  = null }
 
-    // C) Destruir grupos de física (seguro ahora que no hay colliders)
-    if (this.walls)     { this.walls.clear(true, true);     this.walls     = null }
-    if (this.obstacles) { this.obstacles.clear(true, true); this.obstacles = null }
+    // C) Destruir grupos de física (seguro ahora que no hay colliders).
+    //    destroy(true) elimina el grupo Y todos sus hijos (más limpio que clear).
+    if (this.walls)     { try { this.walls.destroy(true) }     catch(_){} ; this.walls     = null }
+    if (this.obstacles) { try { this.obstacles.destroy(true) } catch(_){} ; this.obstacles = null }
 
     // D) Destruir puertas
     this._doors.forEach(d => {

@@ -31,8 +31,9 @@
       <!-- Créditos expandibles -->
       <transition name="slide-down">
         <div v-if="showCredits" class="credits-box">
-          <p>Proyecto universitario · Semana 1 / 4</p>
-          <p>Stack: Vue 3 · Pinia · Phaser 3 · Vite</p>
+          <p>Proyecto USS</p>
+          <p>Manuel Figueroa</p>
+          <p>Diego Vargas</p>
         </div>
       </transition>
     </nav>

@@ -34,7 +34,7 @@
 ### 🔹 Semana 4
 *Objetivo: Finalización del sistema y DevOps.*
 - [x] Programar sistema de mejoras (power-ups).
-- [ ] Crear sistema de mazmorras (Dungeons) y cambio de niveles.
+- [x] Crear sistema de mazmorras (Dungeons) y cambio de niveles.
 - [ ] Crear `Dockerfile` y configurar `main.yml` (GitHub Actions).
 - [ ] Control de calidad: Verificación de bugs.
 - [ ] Redacción final del `README.md`.

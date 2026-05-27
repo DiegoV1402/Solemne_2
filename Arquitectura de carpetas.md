@@ -1,8 +1,7 @@
-demon-threshold/
 │
 ├── 📁 .github/
 │   └── 📁 workflows/
-│       └── deploy.yml     
+│       └── main.yml     
 │                      
 │ 
 ├── 📁 src/                 
@@ -34,6 +33,9 @@ demon-threshold/
 │   └── main.js            
 │
 ├── index.html             
-├── package.json           
+├── package.json   
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml        
 ├── vite.config.js         
-└── .gitignore             
+└── .gitignore 
+           

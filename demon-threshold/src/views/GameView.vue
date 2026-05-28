@@ -2,7 +2,6 @@
   <div class="game-view">
     <GameCanvas />
 
-    <!-- ── PAUSA ── -->
     <transition name="overlay-fade">
       <div v-show="gameStore.isPaused" class="overlay">
         <div class="panel">
@@ -22,7 +21,6 @@
       </div>
     </transition>
 
-        <!-- ── VICTORIA (boss derrotado) ── -->
     <transition name="overlay-fade">
       <div v-show="gameStore.phase === 'victory'" class="overlay victory-overlay">
         <div class="panel victory-panel">
@@ -43,28 +41,49 @@
       </div>
     </transition>
 
-    <!-- ── GAME OVER ── -->
     <transition name="overlay-fade">
-      <div v-show="gameStore.phase === 'gameover'" class="overlay gameover-overlay">
-        <div class="panel gameover-panel">
-          <div class="ornament">✦ ─────── ✦</div>
-          <h2 class="panel-title red-title">GAME OVER</h2>
-          <div class="ornament">✦ ─────── ✦</div>
-          <div class="gameover-stats">
-            <div class="stat-row"><span class="stat-label">Sala alcanzada</span><span class="stat-val">{{ gameStore.roomNumber }}</span></div>
-            <div class="stat-row"><span class="stat-label">Tiempo</span><span class="stat-val">{{ gameStore.elapsedFormatted }}</span></div>
-            <div class="stat-row"><span class="stat-label">Nivel</span><span class="stat-val">{{ playerStore.level }}</span></div>
-            <div class="stat-row"><span class="stat-label">Enemigos</span><span class="stat-val">{{ gameStore.enemiesDefeated }}</span></div>
+      <div v-show="gameStore.phase === 'gameover'" class="overlay gameover-hades-overlay">
+        <div class="gameover-hades-container">
+          
+          <div class="gameover-header">
+            <h1 class="death-title">TU DESTINO HA SIDO SELLADO</h1>
+            <h2 class="death-subtitle">MUERTE</h2>
           </div>
-          <nav class="panel-nav">
-            <button class="btn primary" @click="handleRestart">↺ REINTENTAR</button>
-            <button class="btn" @click="handleMenu">⬅ MENÚ PRINCIPAL</button>
-          </nav>
+
+          <div class="gameover-content">
+            
+            <div class="stats-and-progress">
+              <div class="stats-panel-hades">
+                <div class="stat-row-hades">
+                  <span class="stat-label-hades">🚪 SALAS LIMPIADAS</span>
+                  <span class="stat-val-hades">{{ gameStore.roomNumber }}</span>
+                </div>
+                <div class="stat-row-hades">
+                  <span class="stat-label-hades">💀 ENEMIGOS DERROTADOS</span>
+                  <span class="stat-val-hades">{{ gameStore.enemiesDefeated }}</span>
+                </div>
+                <div class="stat-row-hades">
+                  <span class="stat-label-hades">⏳ TIEMPO DE LA PARTIDA</span>
+                  <span class="stat-val-hades">{{ gameStore.elapsedFormatted }}</span>
+                </div>
+                <div class="stat-row-hades">
+                  <span class="stat-label-hades">🟣 NIVEL ALCANZADO</span>
+                  <span class="stat-val-hades">{{ playerStore.level }}</span>
+                </div>
+                
+              </div>
+            </div>
+
+            <div class="actions-panel">
+              <button class="hades-btn primary-hades" @click="handleRestart">REINTENTAR</button>
+              <button class="hades-btn secondary-hades" @click="handleMenu">VOLVER AL MENÚ</button>
+            </div>
+
+          </div>
         </div>
       </div>
     </transition>
 
-    <!-- ── BENDICIÓN CORRUPTA (mejoras) ── -->
     <transition name="upgrade-fade">
       <div v-show="gameStore.phase === 'upgrading'" class="overlay upgrade-overlay">
         <div class="upgrade-panel">
@@ -110,12 +129,13 @@ import GameCanvas from '@/components/game/GameCanvas.vue'
 
 const gameStore   = useGameStore()
 const playerStore = usePlayerStore()
+
 // ── Mejoras ───────────────────────────────────────────────
 const selectedUpgrade = ref(null)
 
 const ALL_UPGRADES = [
   { id: 'damage',      name: 'FURIA DE ARES',        icon: '⚔️',  statLabel: 'DAÑO +15%',            desc: 'La ira del dios de la guerra fluye por tu hoja. Cada golpe perfora más profundo.' },
-  { id: 'speed',       name: 'ZANCADA DE HERMES',    icon: '🪶',  statLabel: 'VELOCIDAD +10%',        desc: 'Las alas del mensajero divino bendicen tus pies. Te mueves como el viento.' },
+  { id: 'speed',       name: 'ZANCADA DE HERMES',    icon: '🏃🏻‍♂️',  statLabel: 'VELOCIDAD +10%',        desc: 'Las alas del mensajero divino bendicen tus pies. Te mueves como el viento.' },
   { id: 'maxHp',       name: 'RESISTENCIA DE HADES', icon: '🛡️',  statLabel: 'VIDA MÁXIMA +20%',     desc: 'La resiliencia del señor del inframundo refuerza tu cuerpo.' },
   { id: 'healHp',      name: 'GRACIA DE ASCLEPIO',   icon: '✨',  statLabel: 'RECUPERAR 30% VIDA',   desc: 'El toque del dios de la medicina sella tus heridas al instante.' },
   { id: 'damageSpeed', name: 'DUALIDAD DE APOLO',    icon: '🌟',  statLabel: 'DAÑO +8%  VEL +5%',   desc: 'El dios del sol combina sus dones: más rápido y más letal.' },
@@ -156,7 +176,6 @@ function handleRestart() {
   z-index: 50;
   background: rgba(0,0,0,0.62); backdrop-filter: blur(4px);
 }
-.gameover-overlay  { background: rgba(20,0,0,0.78); }
 .transition-overlay { background: rgba(0,8,4,0.80); }
 .upgrade-overlay   { background: rgba(4,2,14,0.88); backdrop-filter: blur(6px); }
 
@@ -169,12 +188,6 @@ function handleRestart() {
   box-shadow: 0 0 0 4px rgba(0,0,0,0.6), 0 0 40px rgba(201,147,58,0.25);
   clip-path: polygon(16px 0%,calc(100% - 16px) 0%,100% 16px,100% calc(100% - 16px),calc(100% - 16px) 100%,16px 100%,0% calc(100% - 16px),0% 16px);
   min-width: 340px;
-}
-
-.gameover-panel {
-  border-color: #cc2222;
-  background: linear-gradient(160deg, #1e0808 0%, #0f0202 100%);
-  box-shadow: 0 0 0 4px rgba(0,0,0,0.6), 0 0 60px rgba(200,30,30,0.3);
 }
 
 .transition-panel {
@@ -190,12 +203,10 @@ function handleRestart() {
 .purple-ornament { color: #9966cc; }
 
 .panel-title { font-family: var(--font-pixel); font-size: 20px; color: var(--color-gold); letter-spacing: 8px; text-shadow: 0 0 20px rgba(201,147,58,0.7); }
-.red-title   { color: #ff4444; letter-spacing: 6px; text-shadow: 0 0 20px rgba(255,50,50,0.8); }
 .gold-title  { color: #44ffaa; letter-spacing: 4px; text-shadow: 0 0 24px rgba(40,220,100,0.7); }
 
-/* ── Botones ── */
+/* ── Botones Originales ── */
 .panel-nav { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-
 .btn {
   font-family: var(--font-pixel); font-size: 10px; letter-spacing: 2px;
   color: var(--color-text);
@@ -208,24 +219,138 @@ function handleRestart() {
 .btn.large { padding: 16px 40px; font-size: 12px; }
 .btn:disabled { opacity: .35; cursor: not-allowed; }
 
-/* ── Sala completada ── */
-.room-info { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.room-badge { font-family: var(--font-pixel); font-size: 11px; color: rgba(100,220,150,0.6); letter-spacing: 3px; }
-.next-room-label { font-family: var(--font-pixel); font-size: 7px; color: rgba(255,255,255,0.3); letter-spacing: 2px; margin-top: 6px; }
-.next-room-badge { font-family: var(--font-pixel); font-size: 18px; color: #44ffaa; letter-spacing: 6px; text-shadow: 0 0 20px rgba(40,220,100,0.6); }
+/* ── ESTILOS GAME OVER HADES ── */
+.gameover-hades-overlay {
+  background: radial-gradient(circle at center 70%, rgba(120, 10, 10, 0.45) 0%, rgba(5, 2, 2, 0.95) 80%);
+}
 
-.diff-preview { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(40,200,80,0.2); padding: 14px 20px; display: flex; flex-direction: column; gap: 8px; }
-.diff-title { font-family: var(--font-pixel); font-size: 7px; color: rgba(100,220,150,0.5); letter-spacing: 2px; margin-bottom: 4px; }
-.diff-row { display: flex; justify-content: space-between; font-size: 8px; }
-.diff-label { color: rgba(232,217,192,0.5); }
-.diff-val { color: #ff8888; }
+.gameover-hades-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 90%;
+  max-width: 950px;
+  height: 80vh; 
+  padding: 20px;
+}
 
-/* ── Game over stats ── */
-.gameover-stats { display: flex; flex-direction: column; gap: 8px; width: 100%; background: rgba(0,0,0,0.3); padding: 16px 24px; border: 1px solid rgba(255,50,50,0.2); }
-.stat-row { display: flex; justify-content: space-between; font-size: 9px; }
-.stat-label { color: rgba(232,217,192,0.5); }
-.stat-val   { color: #ff8888; }
+.gameover-header {
+  text-align: center;
+  margin-top: 40px;
+}
 
+.death-title {
+  font-family: var(--font-pixel, 'Impact', sans-serif);
+  font-size: 42px;
+  color: #ff2222;
+  margin: 0;
+  letter-spacing: 4px;
+  text-shadow: 0 5px 15px rgba(200, 0, 0, 0.6), 2px 2px 0px #440000;
+}
+
+.death-subtitle {
+  font-family: var(--font-pixel, monospace);
+  font-size: 18px;
+  color: #aa3333;
+  margin: 10px 0 0 0;
+  letter-spacing: 8px;
+  text-shadow: 2px 2px 0px #000;
+}
+
+.gameover-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.stats-and-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  width: 480px;
+}
+
+.stats-panel-hades {
+  background: rgba(25, 25, 30, 0.95);
+  border: 4px solid #3c3c44;
+  border-radius: 6px;
+  padding: 15px 25px;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.7);
+}
+
+.stat-row-hades {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 2px solid #2a2a32;
+}
+
+.stat-row-hades:last-child {
+  border-bottom: none;
+}
+
+.stat-label-hades {
+  color: #dcdcdc;
+  font-family: var(--font-pixel, monospace);
+  font-size: 11px;
+}
+
+.stat-val-hades {
+  color: #ffcc44;
+  font-family: var(--font-pixel, monospace);
+  font-size: 14px;
+  text-shadow: 0 0 10px rgba(255, 204, 68, 0.4);
+}
+
+.actions-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 250px;
+}
+
+.hades-btn {
+  font-family: var(--font-pixel, monospace);
+  font-size: 14px;
+  padding: 18px 20px;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.1s, filter 0.2s;
+  border-radius: 6px;
+}
+
+.hades-btn:active {
+  transform: scale(0.96);
+}
+
+.primary-hades {
+  background: linear-gradient(180deg, #501515, #300505);
+  border: 4px solid #ffcc44;
+  color: #ffcc44;
+  box-shadow: 0 0 15px rgba(255, 204, 68, 0.3), inset 0 0 10px rgba(255, 204, 68, 0.2);
+}
+
+.primary-hades:hover {
+  filter: brightness(1.2);
+  box-shadow: 0 0 25px rgba(255, 204, 68, 0.5), inset 0 0 15px rgba(255, 204, 68, 0.4);
+}
+
+.secondary-hades {
+  background: linear-gradient(180deg, #303038, #15151a);
+  border: 4px solid #5a5a64;
+  color: #e0e0e0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.secondary-hades:hover {
+  filter: brightness(1.2);
+  border-color: #7a7a84;
+}
+
+/* ── Panel original stats ── */
 .panel-stats { font-size: 7px; color: rgba(232,217,192,0.4); display: flex; gap: 10px; }
 .sep { opacity: .4; }
 
@@ -290,5 +415,4 @@ function handleRestart() {
 .victory-title { color: #ffcc00; letter-spacing: 8px; text-shadow: 0 0 30px rgba(255,200,0,0.9); }
 .victory-sub { font-family: var(--font-pixel); font-size: 8px; color: rgba(255,200,100,0.6); letter-spacing: 2px; }
 .stat-val.gold { color: #ffcc44; }
-
 </style>

@@ -29,7 +29,9 @@ jobs:
           version: 8
 
       - name: Install dependencies
+        working-directory: demon-threshold
         run: pnpm install
 
       - name: Build with Vite
+        working-directory: demon-threshold
         run: pnpm build

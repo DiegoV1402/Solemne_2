@@ -35,6 +35,6 @@
 *Objetivo: Finalización del sistema y DevOps.*
 - [x] Programar sistema de mejoras (power-ups).
 - [x] Crear sistema de mazmorras (Dungeons) y cambio de niveles.
-- [ ] Crear `Dockerfile` y configurar `main.yml` (GitHub Actions).
-- [ ] Control de calidad: Verificación de bugs.
+- [x] Crear `Dockerfile` y configurar `main.yml` (GitHub Actions).
+- [x] Control de calidad: Verificación de bugs.
 - [ ] Redacción final del `README.md`.

@@ -1,12 +1,12 @@
 // game/entities/Boss.js
 // Boss final: stats reducidas para ser desafiante pero derrotable.
-// HP: 180 | Daño: 18/28 | Carga con 2.5s de aviso
+// HP: 180 | Daño: 18/28 | Carga con 2.5s de aviso y estela de fuego
 
 import Phaser from 'phaser'
 
 const BOSS_HP         = 180
 const BOSS_SPEED      = 80
-const BOSS_CHARGE_SPD = 310
+const BOSS_CHARGE_SPD = 350 // Aumenté un poco la velocidad para que la estela luzca mejor
 const BOSS_DAMAGE     = 18
 const BOSS_CHARGE_DMG = 28
 
@@ -21,13 +21,17 @@ export class Boss {
     this.alive   = true
     this._phase2 = false
 
+    // ── Generar Textura por Código (Pixel Art 72x72) ────────
+    this._generateBossTexture(scene)
+
     // ── Sprite ────────────────────────────────────────────
-    this.sprite = group.create(x, y, 'boss')
-    this.sprite.setDisplaySize(64, 64).setDepth(4)
-    this.sprite.body.setSize(46, 46).setOffset(9, 9)
+    this.sprite = group.create(x, y, 'boss_generated')
+    // El tamaño ya es 72x72 gracias a la generación, no necesitamos setDisplaySize a menos que quieras distorsionarlo
+    this.sprite.setDepth(4)
+    this.sprite.body.setSize(48, 48).setOffset(12, 12) // Ajuste de hitbox al nuevo tamaño
     this.sprite.body.setMaxVelocity(400, 400)
 
-    this.shadow = scene.add.ellipse(x, y + 24, 50, 14, 0x000000, 0.45).setDepth(2)
+    this.shadow = scene.add.ellipse(x, y + 30, 50, 14, 0x000000, 0.45).setDepth(2)
 
     this.hp    = BOSS_HP
     this.maxHp = BOSS_HP
@@ -51,7 +55,7 @@ export class Boss {
     ).setOrigin(0.5).setDepth(100).setAlpha(0)
     scene.tweens.add({ targets: nameText, alpha: 1, y: 250, duration: 400, hold: 1400, yoyo: true, onComplete: () => nameText.destroy() })
 
-    // Barra HP del boss (parte inferior de la pantalla)
+    // Barra HP
     this._createBossBar(scene)
   }
 
@@ -87,10 +91,19 @@ export class Boss {
         break
 
       case S.CHARGE:
-        if (this.stateTimer <= 0 || dist < 28) {
+        // ── EFECTO DE EMBESTIDA (Estela de Fuego) ──
+        if (time % 60 < 20) { // Crea un "fantasma" cada ciertos milisegundos
+           const ghost = this.scene.add.sprite(this.sprite.x, this.sprite.y, 'boss_generated').setDepth(3)
+           ghost.setFlipX(this.sprite.flipX)
+           ghost.setTint(this._phase2 ? 0xffbb00 : 0xff4400) // Amarillo en fase 2, Naranja normal
+           ghost.setAlpha(0.6)
+           this.scene.tweens.add({ targets: ghost, alpha: 0, scale: 0.6, duration: 300, onComplete: () => ghost.destroy() })
+        }
+
+        if (this.stateTimer <= 0 || dist < 32) {
           this.state = S.RECOVER; this.stateTimer = this._phase2 ? 1000 : 1600
           this.sprite.setVelocity(0, 0)
-          const slam = this.scene.add.circle(this.sprite.x, this.sprite.y, 38, 0xff4400, 0.6).setDepth(6)
+          const slam = this.scene.add.circle(this.sprite.x, this.sprite.y, 45, 0xff4400, 0.6).setDepth(6)
           this.scene.tweens.add({ targets: slam, scale: 2, alpha: 0, duration: 280, onComplete: () => slam.destroy() })
         }
         break
@@ -115,7 +128,7 @@ export class Boss {
     }
 
     // UI
-    this.shadow?.setPosition(this.sprite.x, this.sprite.y + 24)
+    this.shadow?.setPosition(this.sprite.x, this.sprite.y + 30)
     if (this._alert?.active) this._alert.setPosition(this.sprite.x, this.sprite.y)
     this._updateBossBar()
   }
@@ -127,12 +140,13 @@ export class Boss {
   }
 
   _startWindup(player) {
-    this.state = S.WINDUP; this.stateTimer = 2500   // 2.5s aviso (más tiempo para esquivar)
+    this.state = S.WINDUP; this.stateTimer = 2500 
     const angle = Phaser.Math.Angle.Between(this.sprite.x, this.sprite.y, player.x, player.y)
     this._chgVx = Math.cos(angle) * BOSS_CHARGE_SPD
     this._chgVy = Math.sin(angle) * BOSS_CHARGE_SPD
     this.sprite.setVelocity(0, 0)
 
+    // Animación de "prepararse para embestir" (se aplasta y vibra)
     this.scene.tweens.add({ targets: this.sprite, scaleX: 1.25, scaleY: 0.8, duration: 350, yoyo: true, repeat: 4, ease: 'Sine.easeInOut' })
 
     this._alert = this.scene.add.circle(this.sprite.x, this.sprite.y, 8, 0xff0000, 0.5).setDepth(6)
@@ -166,7 +180,7 @@ export class Boss {
   takeDamage(amount) {
     if (!this.alive) return false
     this.hp = Math.max(0, this.hp - amount)
-    this.sprite.setTint(0xff8888)
+    this.sprite.setTint(0xffffff) // Flash blanco al recibir daño
     this.scene.time.delayedCall(140, () => {
       if (this.sprite?.active) {
         this.sprite.clearTint()
@@ -234,6 +248,66 @@ export class Boss {
     this.bossBarBg?.destroy()
     this.bossBarFg?.destroy()
     this.bossBarLabel?.destroy()
+  }
+
+  // ── FUNCIÓN PARA "DIBUJAR" EL SPRITE EN EL CÓDIGO ──
+  _generateBossTexture(scene) {
+    if (scene.textures.exists('boss_generated')) return; // Evita crearlo múltiples veces
+
+    // Paleta de colores infernales
+    const colors = {
+      '.': null,       // Transparente
+      '1': 0x2c1010,   // Borde / Sombra oscura
+      '2': 0x691818,   // Rojo oscuro (Cuerpo)
+      '3': 0x942929,   // Rojo claro (Músculos)
+      '4': 0xff5500,   // Naranja brillante (Fuego/Ojos)
+      '5': 0xffdd00,   // Amarillo (Brillo ojos)
+      '6': 0xffffff    // Dientes / Cuernos
+    };
+
+    // Matriz de 24x24 (Se escalará x3 para que sea 72x72)
+    const art = [
+      '........11111111........',
+      '......112222222211......',
+      '.....12222222222221.....',
+      '....1112222222222111....',
+      '...123211122221112321...',
+      '...123144412214441321...',
+      '...123145412214541321...',
+      '...122144412214441221...',
+      '....1111111111111111....',
+      '....1222166666612221....',
+      '..11122211111111222111..',
+      '.1231222222222222221321.',
+      '123312233333333332213321',
+      '123312333222222333213321',
+      '122212332222222233212221',
+      '122212333333333333212221',
+      '.1111122222222222211111.',
+      '.....12221111112221.....',
+      '.....12221....12221.....',
+      '.....12221....12221.....',
+      '.....12221....12221.....',
+      '.....11111....11111.....',
+      '........................',
+      '........................'
+    ];
+
+    const pixelSize = 3; // 24 * 3 = 72px
+    const g = scene.make.graphics({ x: 0, y: 0, add: false });
+
+    for (let y = 0; y < art.length; y++) {
+      for (let x = 0; x < art[y].length; x++) {
+        const char = art[y][x];
+        if (colors[char] !== null) {
+          g.fillStyle(colors[char]);
+          g.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+        }
+      }
+    }
+
+    g.generateTexture('boss_generated', 72, 72);
+    g.destroy(); // Limpiamos la memoria
   }
 
   get isAlive() { return this.alive }

@@ -86,7 +86,7 @@ docker rm demon-threshold
 
 ## 🔗 Repositorio en Docker Hub
 
-➡️ **[Link Docker Hub](https://hub.docker.com/repository/docker/diegov1402/demon-threshold/general)**
+➡️ **[Link Docker Hub](https://hub.docker.com/r/diegov1402/demon-threshold)**
 
 ---
 

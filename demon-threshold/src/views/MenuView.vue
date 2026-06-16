@@ -43,8 +43,6 @@
       <span>WASD — Mover</span>
       <span class="sep">·</span>
       <span>ESC — Pausar</span>
-      <span class="sep">·</span>
-      <span>F1 — Debug</span>
     </footer>
   </div>
 </template>

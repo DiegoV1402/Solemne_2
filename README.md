@@ -1,6 +1,6 @@
 # 👹 Demon Threshold
 
-**Demon Threshold** es un juego 2D estilo roguelike de supervivencia donde el jugador debe sobrevivir a oleadas de enemigos en una dungeon y lograr avanzar de sala. Muévete con **WASD**, dispara hacia el cursor manteniendo presionado el botón izquierdo del mouse o la tecla espacio y derrota enemigos para ganar experiencia. Al subir de nivel, elige una **Bendición Corrupta** que potenciará tu personaje de forma permanente durante la partida. La dificultad aumenta progresivamente: más enemigos, más rápidos.
+**Demon Threshold** es un juego 2D estilo roguelike de supervivencia donde el jugador debe sobrevivir a oleadas de enemigos en una dungeon y lograr avanzar de sala para así matar al jefe final. Muévete con **WASD**, dispara hacia el cursor manteniendo presionado el botón izquierdo del mouse o la tecla espacio y derrota enemigos para ganar experiencia. Al subir de nivel, elige una **Bendición Corrupta** que potenciará tu personaje de forma permanente durante la partida. La dificultad aumenta progresivamente: más enemigos, más rápidos.
 
 Desarrollado con **Vue 3**, **Phaser 3**, **Pinia** y **Vite**.
 
@@ -86,7 +86,7 @@ docker rm demon-threshold
 
 ## 🔗 Repositorio en Docker Hub
 
-➡️ **[Link Docker Hub](https://hub.docker.com/repository/docker/diegov1402/demon-threshold/general)**
+➡️ **[Link Docker Hub](https://hub.docker.com/r/diegov1402/demon-threshold)**
 
 ---
 

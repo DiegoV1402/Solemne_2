@@ -43,10 +43,6 @@
 ---
 
 # Planificación del Juego (Solemne 3)
-### Lo que no se logro en la solemne 2
-- La implementacion de CI/CD de manera correcta y tambien la realizacion de test.
-- No quitar la hitbox de el ataque de la espada.
-- No agregar el como se juega ni los controles principales.
 
 ## Cronograma de Actividades
 
@@ -57,8 +53,8 @@
   - [x] Reestructurar el archivo `DESIGN.md`.
   - [x] Definir el nuevo cronograma en `PLANNING.md` con objetivos por clase/semana.
 * **Martes 16/06:**
-  - [ ] Inicializar el entorno del servidor backend (Node.js/Express) utilizando `pnpm` como gestor de paquetes.
-  - [ ] Configurar la conexión inicial a la base de datos MongoDB.
+  - [x] Inicializar el entorno del servidor backend (Node.js/Express) utilizando `pnpm` como gestor de paquetes.
+  - [x] Configurar la conexión inicial a la base de datos MongoDB.
 * **Miércoles 17/06 y Jueves 18/06:**
   - [ ] Diseñar el modelo de usuarios y desarrollar los endpoints de la API REST para registro, login y autenticación.
 * **Viernes 19/06:**

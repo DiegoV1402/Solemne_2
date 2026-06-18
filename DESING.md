@@ -60,51 +60,84 @@ Para el desarrollo de *Demon Threshold*, se ha estructurado una arquitectura Ful
 * **Node.js con Express (API REST):** Framework para el desarrollo del servidor backend. Su arquitectura asíncrona basada en eventos proporciona un rendimiento óptimo para procesar peticiones masivas e instantáneas de autenticación de usuarios y la actualización/consulta frecuente de la tabla de clasificación global. Al utilizar JavaScript en todo el stack, se reduce la fricción en el intercambio de modelos de datos.
 * **MongoDB:** Base de datos NoSQL de tipo orientada a documentos. Se justifica su uso debido a la naturaleza dinámica de las métricas generadas en los videojuegos estilo *roguelike* (donde las estadísticas de partidas, registros de movimientos e inventarios de mejoras acumuladas varían de estructura constantemente). Un esquema flexible basado en BSON/JSON es considerablemente más escalable y rápido que las restricciones impuestas por un modelo relacional tradicional.
 
+### 5.3. Endpoints de la API REST
+```text
+| Método | Endpoint                 | Descripción                                                  | Restricciones / Seguridad                                        |
+| ------ | ------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `POST` | `/api/auth/register`     | Registra una nueva cuenta de usuario en el sistema.          | Validación de formato de datos y encriptación de contraseña.     |
+| `POST` | `/api/auth/login`        | Autentica a un usuario y retorna un Token de sesión JWT.     | Límite de peticiones (*Rate limiting*) para evitar fuerza bruta. |
+| `POST` | `/api/games/session`     | Registra las métricas e historial de la partida al morir.    | Requiere Token JWT válido en las cabeceras HTTP.                 |
+|  `GET` | `/api/games/leaderboard` | Retorna el TOP 50 de las puntuaciones más altas registradas. | Acceso público con caché temporal optimizada de 60s.             |
+|  `GET` | `/api/users/profile`     | Obtiene la información del perfil del usuario y su avatar.   | Requiere Token JWT de sesión activo.                             |
+```
+
+### 5.4. Diagrama Fullstack
+```text
++---------------------+    HTTP    +---------------------+  Mongoose  +-------------+
+|      Frontend       | <--------> |       Backend       | <--------> |   MongoDB   |
+|   Vue 3 + Phaser 3  |            |  Node.js + Express  |            +-------------+
+|     Pinia + Vite    |            |   API REST + JWT    |
++---------------------+            +---------------------+
+                                              |
+                                              | HTTP REST
+                                              v
+                                   +---------------------+
+                                   |   Servicio Externo  |
+                                   |   (DiceBear API)    |
+                                   |                     |
+                                   +---------------------+
+```
+
+
 ### Estructura de carpeta
+```text
 │
 ├── 📁 .github/
 │   └── 📁 workflows/
-│       └── main.yml               
+│       └── main.yml             
 │
-├── 📁 backend/                    
+├── 📁 backend/                  
 │   │
-│   ├── 📁 controllers/            
-│   ├── 📁 models/                 
-│   ├── 📁 routes/                 
-│   ├── 📁 services/               
-│   ├── 📁 tests/                  
-│   ├── .env                       
-│   ├── Dockerfile                 
-│   ├── index.js                   
-│   └── package.json               
+│   ├── 📁 controllers/          
+│   ├── 📁 models/               
+│   ├── 📁 routes/               
+│   ├── 📁 services/             
+│   ├── 📁 tests/                
+│   ├── .env                   
+│   ├── .env.example             
+│   ├── Dockerfile               
+│   ├── index.js    
+│   ├── .gitignore            
+│   └── package.json             
 │ 
-├── 📁 src/                        
+├── 📁 frontend/                 
 │   │
-│   ├── 📁 components/
-│   │   └── 📁 game/
+│   ├── 📁 src/                 
+│   │   ├── 📁 components/       
+│   │   │   └── 📁 game/         
+│   │   │      
+│   │   ├── 📁 game/             
+│   │   │   └── 📁 scenes/       
+│   │   │        
+│   │   ├── 📁 views/            
+│   │   ├── 📁 stores/           
+│   │   ├── 📁 styles/           
+│   │   ├── 📁 systems/          
+│   │   ├── 📁 entities/         
+│   │   ├── App.vue     
+│   │   ├── .gitignore         
+│   │   └── main.js              
 │   │
-│   ├── 📁 game/               
-│   │   └── 📁 scenes/
-│   │
-│   ├── 📁 views/          
-│   │
-│   ├── 📁 stores/         
-│   │
-│   ├── 📁 styles/         
-│   │     
-│   ├── 📁 systems/   
-│   │
-│   ├── 📁 entities/       
-│   │
-│   ├── App.vue            
-│   └── main.js            
+│   ├── 📁 tests/                
+│   ├── index.html               
+│   ├── Dockerfile               
+│   ├── package.json             
+│   └── vite.config.js           
 │
-├── compose.yml                    
-├── Dockerfile                     
-├── index.html             
-├── package.json   
-├── pnpm-lock.yaml
-├── pnpm-workspace.yaml        
-├── vite.config.js         
-└── .gitignore
-
+├── compose.yml                  
+├── DESIGN.md                    
+├── PLANNING.md                  
+├── README.md                    
+├── pnpm-lock.yaml                         
+└── pnpm-workspace.yaml                  
+```

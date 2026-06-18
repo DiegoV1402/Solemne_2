@@ -1,0 +1,19 @@
+# Dependencias
+node_modules/
+pnpm-lock.yaml
+
+# Variables de entorno (¡CRÍTICO - nunca subir!)
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+pnpm-debug.log*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/

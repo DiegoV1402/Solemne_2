@@ -2,12 +2,21 @@ import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import authRoutes from './routes/authRoutes.js';
 
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  credentials: true 
+}));
 app.use(express.json()); // Permite al servidor entender JSON
+app.use(cookieParser()); 
+
+// Rutas
+app.use('/api/auth', authRoutes); 
 
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGO_URI)

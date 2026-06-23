@@ -38,7 +38,7 @@ export class GameScene extends Phaser.Scene {
 
   update(time, delta) {
     if (this.gameStore.phase !== 'playing') return
-    this._handleMovement(delta)
+    this._handleMovement()
     this.gameStore.addTime(delta)
     if (this.enemyManager) this.enemyManager.update(time, delta, this.player)
     if (this.swordAttack)  this.swordAttack.update(time)
@@ -137,7 +137,7 @@ export class GameScene extends Phaser.Scene {
           this.physics.world.removeCollider(active[i])
         }
       }
-    } catch (_) {}
+    } catch { /* ignore */ }
     this._roomColliders = []
 
     // B) Destruir sistemas lógicos
@@ -146,8 +146,8 @@ export class GameScene extends Phaser.Scene {
 
     // C) Destruir grupos de física (seguro ahora que no hay colliders).
     //    destroy(true) elimina el grupo Y todos sus hijos (más limpio que clear).
-    if (this.walls)     { try { this.walls.destroy(true) }     catch(_){} ; this.walls     = null }
-    if (this.obstacles) { try { this.obstacles.destroy(true) } catch(_){} ; this.obstacles = null }
+    if (this.walls)     { try { this.walls.destroy(true) }     catch { /* ignore */ } ; this.walls     = null }
+    if (this.obstacles) { try { this.obstacles.destroy(true) } catch { /* ignore */ } ; this.obstacles = null }
 
     // D) Destruir puertas
     this._doors.forEach(d => {
@@ -157,13 +157,13 @@ export class GameScene extends Phaser.Scene {
     this._doors = []
 
     // E) Destruir objetos visuales de la sala (suelo, grietas, polvo, etc.)
-    this._roomObjects.forEach(o => {
+   this._roomObjects.forEach(o => {
       try {
         if (o && !o.destroyed) {
           this.tweens.killTweensOf(o)   // detener tweens antes de destruir
           o.destroy()
         }
-      } catch (_) {}
+      } catch { /* ignore */ }
     })
     this._roomObjects = []
   }
@@ -384,7 +384,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   // ── Movimiento ─────────────────────────────────────────────
-  _handleMovement(delta) {
+  _handleMovement() {
     const speed = this.playerStore.speed
     let vx = 0, vy = 0
     if (this.keys.left.isDown  || this.keys.left2.isDown)  vx = -1

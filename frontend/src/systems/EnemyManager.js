@@ -193,11 +193,11 @@ export class EnemyManager {
 
   destroy() {
     this.destroyed = true
-    this.enemies.forEach(e => { try { e.destroy() } catch(_){} })
+    this.enemies.forEach(e => { try { e.destroy() } catch { /* ignore */ } })
     this.enemies = []
     // Destruir los grupos de physics completamente
-    try { this.arrowGroup.destroy(true) } catch(_){}
-    try { this.group.destroy(true) } catch(_){}
+    try { this.arrowGroup.destroy(true) } catch { /* ignore */ }
+    try { this.group.destroy(true) } catch { /* ignore */ }
   }
 
   get enemyGroup()  { return this.group }

@@ -91,7 +91,7 @@ jobs:
       - name: Construir y Subir Imagen del Frontend
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./frontend
+          file: ./frontend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/demon-threshold:latest

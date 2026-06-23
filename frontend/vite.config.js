@@ -8,5 +8,9 @@ export default defineConfig({
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }
   },
   optimizeDeps: { include: ['phaser'] },
-  define: { global: 'globalThis' }
+  define: { global: 'globalThis' },
+  
+  test: {
+    environment: 'jsdom'
+  }
 })

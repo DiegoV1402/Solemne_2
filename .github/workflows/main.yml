@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -10,28 +10,82 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build project
+  # =========================================================
+  # 1. TRABAJO DE VERIFICACIÓN (CALIDAD Y PRUEBAS)
+  # =========================================================
+  lint_and_test:
+    name: Lint & Test (QA)
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Configurar Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 22 # <-- CORRECCIÓN 1: Actualizado a Node 22 para quitar la advertencia
+          node-version: 22
 
-      - name: Install pnpm
+      - name: Configurar pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
 
-      - name: Install dependencies
-        working-directory: frontend # <-- CORRECCIÓN 2: Cambia 'demon-threshold' por el nombre real de tu carpeta (ej. 'frontend')
+      # --- ETAPA BACKEND ---
+      - name: Instalar Dependencias del Backend
+        working-directory: backend
         run: pnpm install
 
-      - name: Build with Vite
-        working-directory: frontend # <-- CORRECCIÓN 2: Aquí también
-        run: pnpm build
+      - name: Ejecutar Linter (Backend)
+        working-directory: backend
+        run: pnpm run lint
+
+      - name: Ejecutar Pruebas Unitarias (Backend)
+        working-directory: backend
+        run: pnpm test
+
+      # --- ETAPA FRONTEND ---
+      - name: Instalar Dependencias del Frontend
+        working-directory: frontend
+        run: pnpm install
+
+      - name: Ejecutar Linter (Frontend)
+        working-directory: frontend
+        run: pnpm run lint
+
+      - name: Ejecutar Pruebas de Componentes (Frontend)
+        working-directory: frontend
+        run: pnpm test
+
+  # =========================================================
+  # 2. TRABAJO DE COMPILACIÓN Y DESPLIEGUE (DOCKER)
+  # =========================================================
+  build_and_push:
+    name: Build & Push Docker Images
+    needs: lint_and_test # <--- BLOQUEO SEGURO: Si algo falla arriba, esto no se ejecuta
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Iniciar sesión en Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Construir y Subir Imagen del Backend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/demon-threshold-backend:latest
+
+      - name: Construir y Subir Imagen del Frontend
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/demon-threshold:latest

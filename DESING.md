@@ -94,7 +94,7 @@ Para el desarrollo de *Demon Threshold*, se ha estructurado una arquitectura Ful
 │
 ├── 📁 .github/
 │   └── 📁 workflows/
-│       └── main.yml             
+│                  
 │
 ├── 📁 backend/                  
 │   │
@@ -102,13 +102,7 @@ Para el desarrollo de *Demon Threshold*, se ha estructurado una arquitectura Ful
 │   ├── 📁 models/               
 │   ├── 📁 routes/               
 │   ├── 📁 services/             
-│   ├── 📁 tests/                
-│   ├── .env                   
-│   ├── .env.example             
-│   ├── Dockerfile               
-│   ├── index.js    
-│   ├── .gitignore            
-│   └── package.json             
+│   ├── 📁 tests/                           
 │ 
 ├── 📁 frontend/                 
 │   │
@@ -124,16 +118,10 @@ Para el desarrollo de *Demon Threshold*, se ha estructurado una arquitectura Ful
 │   │   ├── 📁 styles/           
 │   │   ├── 📁 systems/          
 │   │   ├── 📁 entities/         
-│   │   ├── App.vue     
-│   │   ├── .gitignore         
-│   │   └── main.js              
+│   │          
+│   │            
 │   │
 │   ├── 📁 tests/                
-│   ├── index.html               
-│   ├── Dockerfile               
-│   ├── package.json             
-│   └── vite.config.js           
-│
 ├── compose.yml                  
 ├── DESIGN.md                    
 ├── PLANNING.md                  

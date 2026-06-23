@@ -56,14 +56,14 @@
   - [x] Inicializar el entorno del servidor backend (Node.js/Express) utilizando `pnpm` como gestor de paquetes.
   - [x] Configurar la conexión inicial a la base de datos MongoDB.
 * **Miércoles 17/06 y Jueves 18/06:**
-  - [ ] Diseñar el modelo de usuarios y desarrollar los endpoints de la API REST para registro, login y autenticación.
+  - [x] Diseñar el modelo de usuarios y desarrollar los endpoints de la API REST para registro, login y autenticación.
 * **Viernes 19/06:**
-  - [ ] Implementar y configurar Linter en el proyecto (frontend y backend).
-  - [ ] Escribir e implementar pruebas unitarias básicas iniciales para el frontend y el backend.
+  - [x] Implementar y configurar Linter en el proyecto (frontend y backend).
+  - [x] Escribir e implementar pruebas unitarias básicas iniciales para el frontend y el backend.
 * **Sábado 20/06 y Domingo 21/06:**
-  - [ ] Crear el `Dockerfile` independiente para el backend.
-  - [ ] Crear el archivo `compose.yml` en la raíz para orquestar los tres servicios: frontend, backend y MongoDB.
-  - [ ] Configurar el flujo en `.github/workflows/main.yml` para que al hacer push ejecute el Linter, las Pruebas Unitarias y realice el Build + Push de ambas imágenes (frontend y backend) hacia DockerHub.
+  - [x] Crear el `Dockerfile` independiente para el backend.
+  - [x] Crear el archivo `compose.yml` en la raíz para orquestar los tres servicios: frontend, backend y MongoDB.
+  - [x] Configurar el flujo en `.github/workflows/main.yml` para que al hacer push ejecute el Linter, las Pruebas Unitarias y realice el Build + Push de ambas imágenes (frontend y backend) hacia DockerHub.
 
 📊 **Balance de la Semana 1:**
 * **Lo que se logró completar:**

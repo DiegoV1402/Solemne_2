@@ -76,8 +76,8 @@
 * **Lunes 22/06:**
   - [x] Modificar la lógica del sistema de ataque (eliminar la estela congelada de la espada).
 * **Martes 23/06 y Miércoles 24/06:**
-  - [ ] Conectar los formularios de login del cliente de Vue.js con los endpoints del backend para gestionar sesiones.
-  - [ ] Programar la lógica persistente: enviar la información (puntaje, enemigos, nivel) a MongoDB al activarse la pantalla de muerte ("Tu destino ha sido sellado").
+  - [x] Conectar los formularios de login del cliente de Vue.js con los endpoints del backend para gestionar sesiones.
+  - [x] Programar la lógica persistente: enviar la información (puntaje, enemigos, nivel) a MongoDB al activarse la pantalla de muerte ("Tu destino ha sido sellado").
 * **Jueves 25/06:**
   - [ ] Integrar el servicio REST externo gratuito.
 * **Viernes 26/06 y Sábado 27/06:**

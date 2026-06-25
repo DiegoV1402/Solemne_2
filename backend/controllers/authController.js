@@ -71,7 +71,8 @@ export const login = async (req, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000 
       });
       return res.json({ 
-        message: 'Login exitoso', 
+        message: 'Login exitoso',
+        token, 
         user: { username: user.username, avatarUrl: user.avatarUrl } 
       });
     }
@@ -79,5 +80,19 @@ export const login = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error en el servidor al iniciar sesión' });
+  }
+};
+export const verifyToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Formato "Bearer <token>"
+
+  if (!token) return res.status(403).json({ message: 'Token requerido para guardar partida' });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.id; // Extraemos la ID del usuario para saber de quién es el puntaje
+    next(); 
+  } catch (error) {
+    return res.status(401).json({ message: 'Token inválido o expirado' });
   }
 };

@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes.js';
+import gameRoutes from './routes/gameRoutes.js';
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(cookieParser());
 
 // Rutas
 app.use('/api/auth', authRoutes); 
+app.use('/api/games', gameRoutes);
 
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGO_URI)

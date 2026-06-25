@@ -1,7 +1,6 @@
 <template>
   <div class="menu-screen">
 
-    <!-- Fondo animado -->
     <div class="menu-bg" aria-hidden="true">
       <div class="bg-crack c1" />
       <div class="bg-crack c2" />
@@ -9,15 +8,39 @@
       <div class="bg-vignette" />
     </div>
 
-    <!-- Título -->
     <header class="menu-header">
       <h1 class="title-line demon">DEMON</h1>
       <h1 class="title-line threshold">THRESHOLD</h1>
       <p class="title-subtitle">☠ &nbsp; LITE &nbsp; ☠</p>
     </header>
 
-    <!-- Botones -->
-    <nav class="menu-nav">
+    <nav class="menu-nav" v-if="!authStore.token">
+      <h2 class="auth-title">{{ isLoginMode ? 'INICIAR SESIÓN' : 'REGISTRARSE' }}</h2>
+      
+      <form @submit.prevent="handleSubmit" class="auth-form">
+        <input type="text" v-model="username" placeholder="Usuario" class="menu-input" required />
+        
+        <input v-if="!isLoginMode" type="email" v-model="email" placeholder="Correo electrónico" class="menu-input" required />
+        
+        <input type="password" v-model="password" placeholder="Contraseña" class="menu-input" required />
+        
+        <button type="submit" class="menu-btn primary form-btn">
+          <span class="fire-icon">🔥</span>
+          {{ isLoginMode ? 'ENTRAR' : 'CREAR CUENTA' }}
+          <span class="fire-icon">🔥</span>
+        </button>
+      </form>
+
+      <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
+
+      <button class="menu-btn secondary" @click="toggleMode">
+        {{ isLoginMode ? '¿NUEVO AQUÍ? REGÍSTRATE' : '¿YA TIENES CUENTA? INICIA SESIÓN' }}
+      </button>
+    </nav>
+
+    <nav class="menu-nav" v-else>
+      <p class="welcome-msg">¡Bienvenido, guerrero!</p>
+      
       <button class="menu-btn primary" @click="handlePlay">
         <span class="fire-icon">🔥</span>
         JUGAR
@@ -27,8 +50,11 @@
       <button class="menu-btn" @click="toggleCredits">
         CRÉDITOS
       </button>
+      
+      <button class="menu-btn secondary" @click="handleLogout">
+        CERRAR SESIÓN
+      </button>
 
-      <!-- Créditos expandibles -->
       <transition name="slide-down">
         <div v-if="showCredits" class="credits-box">
           <p>Proyecto USS</p>
@@ -38,11 +64,10 @@
       </transition>
     </nav>
 
-    <!-- Controles rápidos -->
     <footer class="menu-footer">
       <span>WASD — Mover</span>
       <span class="sep">·</span>
-      <span>ESC — Pausar</span>
+      <span>CLICK / ESPACIO — Atacar</span>
     </footer>
   </div>
 </template>
@@ -51,10 +76,50 @@
 import { ref } from 'vue'
 import { useGameStore }   from '@/stores/gameStore'
 import { usePlayerStore } from '@/stores/playerStore'
+import { useAuthStore }   from '@/stores/authStore' 
 
 const gameStore   = useGameStore()
 const playerStore = usePlayerStore()
+const authStore   = useAuthStore()
+
 const showCredits = ref(false)
+
+// Estados reactivos para controlar el login y registro
+const username = ref('')
+const email = ref('')
+const password = ref('')
+const isLoginMode = ref(true)
+const errorMessage = ref('')
+
+// Envío del formulario al store de Pinia
+async function handleSubmit() {
+  errorMessage.value = ''
+  try {
+    if (isLoginMode.value) {
+      await authStore.login(username.value, password.value)
+    } else {
+      await authStore.register(username.value, email.value, password.value)
+      // Cambiar de vista e informar al usuario
+      isLoginMode.value = true
+      errorMessage.value = '¡Registro exitoso! Ya puedes iniciar sesión.'
+      // Limpiar inputs
+      username.value = ''
+      email.value = ''
+      password.value = ''
+    }
+  } catch (error) {
+    errorMessage.value = error.message
+  }
+}
+
+function toggleMode() {
+  isLoginMode.value = !isLoginMode.value
+  errorMessage.value = ''
+}
+
+function handleLogout() {
+  authStore.logout()
+}
 
 function handlePlay() {
   playerStore.reset()
@@ -67,7 +132,7 @@ function toggleCredits() {
 </script>
 
 <style scoped>
-/* ── Pantalla completa ───────────────────────────────────── */
+/* ── Estructura de Pantalla Completa ─────────────────────── */
 .menu-screen {
   position: relative;
   width: 100vw;
@@ -81,13 +146,9 @@ function toggleCredits() {
   background: radial-gradient(ellipse at 50% 60%, #1e0a35 0%, #08080f 65%);
 }
 
-/* ── Fondo con grietas CSS ──────────────────────────────── */
+/* ── Fondo Animado (Grietas de lava) ───────────────────── */
 .menu-bg { position: absolute; inset: 0; pointer-events: none; }
-
-.bg-crack {
-  position: absolute;
-  inset: 0;
-}
+.bg-crack { position: absolute; inset: 0; }
 .c1 {
   background: linear-gradient(125deg, transparent 42%, rgba(123,47,255,0.18) 50%, transparent 58%);
   animation: crackPulse 5s ease-in-out infinite;
@@ -111,9 +172,8 @@ function toggleCredits() {
   50%       { opacity: 1;   }
 }
 
-/* ── Título ─────────────────────────────────────────────── */
+/* ── Tipografía y Estilo de Títulos ─────────────────────── */
 .menu-header { text-align: center; position: relative; z-index: 1; }
-
 .title-line {
   font-family: var(--font-title);
   text-transform: uppercase;
@@ -121,7 +181,6 @@ function toggleCredits() {
   letter-spacing: 8px;
   display: block;
 }
-
 .demon {
   font-size: clamp(52px, 8vw, 100px);
   color: var(--color-gold);
@@ -131,7 +190,6 @@ function toggleCredits() {
     3px 3px 0 #2a1500;
   animation: titleGlow 3.5s ease-in-out infinite;
 }
-
 .threshold {
   font-size: clamp(34px, 6vw, 74px);
   color: #e8d9c0;
@@ -139,7 +197,6 @@ function toggleCredits() {
     0 0 16px rgba(123,47,255,0.8),
     2px 2px 0 #180030;
 }
-
 .title-subtitle {
   font-size: 10px;
   color: rgba(123,47,255,0.65);
@@ -152,7 +209,7 @@ function toggleCredits() {
   50%       { text-shadow: 0 0 35px rgba(201,147,58,1),   0 0 90px rgba(224,90,26,0.45), 3px 3px 0 #2a1500; }
 }
 
-/* ── Navegación ─────────────────────────────────────────── */
+/* ── Contenedor de Botones y Formularios ─────────────────── */
 .menu-nav {
   display: flex;
   flex-direction: column;
@@ -162,6 +219,7 @@ function toggleCredits() {
   z-index: 1;
 }
 
+/* Botones con estilo RPG / Recortados */
 .menu-btn {
   font-family: var(--font-pixel);
   font-size: 12px;
@@ -180,14 +238,12 @@ function toggleCredits() {
     0% calc(100% - 10px), 0% 10px
   );
 }
-
 .menu-btn:hover {
   background: linear-gradient(180deg, #4a2a00 0%, #2a1800 100%);
   color: var(--color-gold);
   transform: scale(1.035);
   box-shadow: 0 0 22px rgba(201,147,58,0.35);
 }
-
 .menu-btn.primary {
   font-size: 14px;
   padding: 16px 60px;
@@ -196,13 +252,26 @@ function toggleCredits() {
   background: linear-gradient(180deg, #5a2000 0%, #341000 100%);
   box-shadow: 0 0 16px rgba(224,90,26,0.4);
 }
-
 .menu-btn.primary:hover {
   background: linear-gradient(180deg, #8a3a00 0%, #5a2200 100%);
   box-shadow: 0 0 32px rgba(224,90,26,0.65);
   color: #ffc890;
 }
+.menu-btn.secondary {
+  font-size: 8px;
+  padding: 10px 30px;
+  min-width: 200px;
+  border-color: var(--color-accent);
+  background: rgba(10, 5, 20, 0.8);
+  box-shadow: 0 0 10px rgba(123,47,255,0.2);
+}
+.menu-btn.secondary:hover {
+  border-color: #9d5cff;
+  box-shadow: 0 0 15px rgba(123,47,255,0.5);
+  color: #fff;
+}
 
+/* Ícono de fuego animado */
 .fire-icon {
   display: inline-block;
   font-size: 15px;
@@ -213,7 +282,70 @@ function toggleCredits() {
   to   { transform: rotate( 6deg) scale(1.1); }
 }
 
-/* ── Créditos ────────────────────────────────────────────── */
+/* ── Estructura y Estilos de Formulario de Autenticación ──── */
+.auth-title {
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  color: var(--color-gold);
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 0px #000;
+  text-align: center;
+}
+.welcome-msg {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: var(--color-text);
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 0px #000;
+}
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Inputs adaptados a la estética del juego */
+.menu-input {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  padding: 14px;
+  width: 290px;
+  background: rgba(8, 8, 15, 0.85);
+  border: 2px solid var(--color-accent);
+  color: var(--color-text);
+  text-align: center;
+  outline: none;
+  transition: all 0.3s ease;
+  clip-path: polygon(
+    5px 0%, calc(100% - 5px) 0%,
+    100% 5px, 100% calc(100% - 5px),
+    calc(100% - 5px) 100%, 5px 100%,
+    0% calc(100% - 5px), 0% 5px
+  );
+}
+.menu-input::placeholder { color: rgba(232,217,192,0.4); }
+.menu-input:focus {
+  border-color: var(--color-gold);
+  background: rgba(20, 15, 5, 0.9);
+  box-shadow: 0 0 15px rgba(201,147,58,0.3);
+}
+.form-btn { margin-top: 5px; }
+
+/* Mensajes de error */
+.error-msg {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--color-danger);
+  margin-top: 5px;
+  text-shadow: 1px 1px 0px #000;
+  max-width: 290px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ── Cuadro de Créditos ──────────────────────────────────── */
 .credits-box {
   background: rgba(0,0,0,0.65);
   border: 1px solid rgba(123,47,255,0.35);
@@ -225,7 +357,7 @@ function toggleCredits() {
   width: 290px;
 }
 
-/* ── Footer ──────────────────────────────────────────────── */
+/* ── Pie de Página ──────────────────────────────────────── */
 .menu-footer {
   position: absolute;
   bottom: 20px;
@@ -236,9 +368,9 @@ function toggleCredits() {
   letter-spacing: 2px;
   z-index: 1;
 }
-.sep { opacity: 0.35; }
+.sep { opacity: 0.5; }
 
-/* ── Transiciones ────────────────────────────────────────── */
+/* ── Transiciones de CSS animadas ───────────────────────── */
 .slide-down-enter-active { transition: all 0.25s ease; }
 .slide-down-leave-active { transition: all 0.18s ease; }
 .slide-down-enter-from   { opacity: 0; transform: translateY(-8px); }

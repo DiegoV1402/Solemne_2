@@ -5,6 +5,9 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { DUNGEON_MAP } from '@/game/data/dungeonMap'
 
+import { useAuthStore } from './authStore'
+import { usePlayerStore } from './playerStore'
+
 export const useGameStore = defineStore('game', () => {
 
   // ── Fase del juego ─────────────────────────────────────────
@@ -59,6 +62,40 @@ export const useGameStore = defineStore('game', () => {
     return `${min}:${sec}`
   })
 
+  async function saveSessionData() {
+    const authStore = useAuthStore()
+    const playerStore = usePlayerStore() 
+
+    // Si el usuario no ha iniciado sesión, no guardamos en MongoDB
+    if (!authStore.token) return
+
+    try {
+      const response = await fetch('http://localhost:3000/api/games/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authStore.token}`
+        },
+        body: JSON.stringify({
+          // Calculamos un puntaje base (puedes ajustar esta fórmula a tu gusto)
+          score: enemiesDefeated.value * 100, 
+          // Extraemos el nivel alcanzado desde el store del jugador
+          level: playerStore.level || 1,      
+          enemiesDefeated: enemiesDefeated.value
+        })
+      })
+
+      const data = await response.json()
+      if (response.ok) {
+        console.log('✅ Base de datos:', data.message)
+      } else {
+        console.error('❌ Error de servidor:', data.message)
+      }
+    } catch (error) {
+      console.error('Fallo de red al intentar guardar la partida:', error)
+    }
+  }
+
   // ── Acciones ───────────────────────────────────────────────
   function startGame() {
     phase.value           = 'playing'
@@ -108,7 +145,12 @@ export const useGameStore = defineStore('game', () => {
   function openUpgrade()  { phase.value = 'upgrading' }
   function closeUpgrade() { phase.value = 'playing' }
 
-  function gameOver()  { phase.value = 'gameover' }
+  // Al morir, cambiamos la vista y mandamos la info a MongoDB
+  function gameOver()  { 
+    phase.value = 'gameover' 
+    saveSessionData() 
+  }
+  
   function victory()   { phase.value = 'victory' }
   function goToMenu()  { phase.value = 'menu' }
 
@@ -122,5 +164,6 @@ export const useGameStore = defineStore('game', () => {
     currentRoom, roomLabel, elapsedFormatted,
     startGame, enterRoom, completeCurrentRoom, isRoomCleared, getRoomType,
     togglePause, openUpgrade, closeUpgrade, gameOver, victory, goToMenu, addTime,
+    saveSessionData // Exportamos la función por si se requiere en un botón manual más adelante
   }
 })

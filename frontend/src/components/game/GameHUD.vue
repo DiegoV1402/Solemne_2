@@ -1,26 +1,28 @@
 <template>
-  <!-- HUD encima del canvas — pointer-events:none para no bloquear input -->
   <div class="hud-overlay">
 
-    <!-- Esquina superior izquierda: HP + XP -->
     <div class="hud-topleft">
-      <div class="hud-row">
-        <span class="hud-icon">❤️</span>
-        <div class="bar-track">
-          <div class="bar-fill hp-fill" :style="{ width: playerStore.hpPercent + '%' }" />
+      <img v-if="authStore.user" :src="authStore.user.avatarUrl" class="hud-avatar" alt="Avatar"/>
+      <div class="hud-avatar-placeholder" v-else>👻</div>
+
+      <div class="hud-bars">
+        <div class="hud-row">
+          <span class="hud-icon">❤️</span>
+          <div class="bar-track">
+            <div class="bar-fill hp-fill" :style="{ width: playerStore.hpPercent + '%' }" />
+          </div>
+          <span class="hud-val">{{ playerStore.hp }}/{{ playerStore.maxHp }}</span>
         </div>
-        <span class="hud-val">{{ playerStore.hp }}/{{ playerStore.maxHp }}</span>
-      </div>
-      <div class="hud-row">
-        <span class="hud-icon xp-icon">✦</span>
-        <div class="bar-track">
-          <div class="bar-fill xp-fill" :style="{ width: playerStore.xpPercent + '%' }" />
+        <div class="hud-row">
+          <span class="hud-icon xp-icon">✦</span>
+          <div class="bar-track">
+            <div class="bar-fill xp-fill" :style="{ width: playerStore.xpPercent + '%' }" />
+          </div>
+          <span class="hud-val xp-val">Nv.{{ playerStore.level }}</span>
         </div>
-        <span class="hud-val xp-val">Nv.{{ playerStore.level }}</span>
       </div>
     </div>
 
-    <!-- Esquina superior derecha: sala + tiempo + pausa -->
     <div class="hud-topright">
       <span class="hud-room" :class="{ boss: isBossRoom }">{{ gameStore.roomLabel }}</span>
       <span class="hud-kills">💀 {{ gameStore.enemiesDefeated }}</span>
@@ -35,9 +37,12 @@
 import { computed } from 'vue'
 import { useGameStore }   from '@/stores/gameStore'
 import { usePlayerStore } from '@/stores/playerStore'
+import { useAuthStore }   from '@/stores/authStore' // Integración del store de autenticación
 
 const gameStore   = useGameStore()
 const playerStore = usePlayerStore()
+const authStore   = useAuthStore() // Acceso a los datos del usuario y su avatar
+
 const isBossRoom  = computed(() => gameStore.currentRoom?.type === 'boss')
 </script>
 
@@ -48,13 +53,20 @@ const isBossRoom  = computed(() => gameStore.currentRoom?.type === 'boss')
   pointer-events: none; z-index: 10;
 }
 
+/* Alineación horizontal para el bloque de perfil y barras */
 .hud-topleft {
   position: absolute; top: 14px; left: 14px;
+  display: flex; gap: 10px; align-items: center;
+}
+
+.hud-bars {
   display: flex; flex-direction: column; gap: 6px;
 }
+
 .hud-row { display: flex; align-items: center; gap: 7px; }
 .hud-icon { font-size: 12px; width: 16px; text-align: center; }
 .xp-icon  { color: var(--color-xp); font-size: 10px; }
+
 .bar-track {
   width: 130px; height: 11px;
   background: rgba(0,0,0,0.55);
@@ -66,6 +78,28 @@ const isBossRoom  = computed(() => gameStore.currentRoom?.type === 'boss')
 .xp-fill  { background: linear-gradient(90deg, #1077aa, #22aacc); }
 .hud-val  { font-size: 7px; color: var(--color-text); min-width: 56px; }
 .xp-val   { color: var(--color-xp); }
+
+/* Estilos específicos para el Avatar en el HUD */
+.hud-avatar {
+  width: 42px;
+  height: 42px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid var(--color-gold);
+  border-radius: 4px;
+  image-rendering: pixelated; /* Mantiene la nitidez del pixel art */
+}
+
+.hud-avatar-placeholder {
+  width: 42px;
+  height: 42px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid var(--color-gold);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
 
 .hud-topright {
   position: absolute; top: 14px; right: 14px;

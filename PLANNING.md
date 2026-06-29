@@ -79,7 +79,7 @@
   - [x] Conectar los formularios de login del cliente de Vue.js con los endpoints del backend para gestionar sesiones.
   - [x] Programar la lógica persistente: enviar la información (puntaje, enemigos, nivel) a MongoDB al activarse la pantalla de muerte ("Tu destino ha sido sellado").
 * **Jueves 25/06:**
-  - [ ] Integrar el servicio REST externo gratuito.
+  - [x] Integrar el servicio REST externo gratuito.
 * **Viernes 26/06 y Sábado 27/06:**
   - [ ] Implementar la Tabla de Clasificación (Leaderboard) obteniendo los datos desde el backend.
   - [ ] Modificar el sistema de "Bendiciones Corruptas" en el frontend para el intercambio o compra de potenciadores (cambios de armas y cartas).

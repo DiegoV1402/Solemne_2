@@ -39,7 +39,11 @@
     </nav>
 
     <nav class="menu-nav" v-else>
-      <p class="welcome-msg">¡Bienvenido, guerrero!</p>
+      <div class="user-profile" v-if="authStore.user">
+        <img :src="authStore.user.avatarUrl" alt="Avatar Pixel Art" class="user-avatar" />
+        <p class="welcome-msg">¡Bienvenido, {{ authStore.user.username }}!</p>
+      </div>
+      <p class="welcome-msg" v-else>¡Bienvenido, guerrero!</p>
       
       <button class="menu-btn primary" @click="handlePlay">
         <span class="fire-icon">🔥</span>
@@ -375,4 +379,22 @@ function toggleCredits() {
 .slide-down-leave-active { transition: all 0.18s ease; }
 .slide-down-enter-from   { opacity: 0; transform: translateY(-8px); }
 .slide-down-leave-to     { opacity: 0; transform: translateY(-8px); }
+
+/* ── Estilos para el Perfil (API DiceBear) ───────────────── */
+.user-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.user-avatar {
+  width: 64px;
+  height: 64px;
+  background: rgba(10, 5, 20, 0.8);
+  border: 2px solid var(--color-gold);
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(201,147,58,0.4);
+  image-rendering: pixelated;
+}
 </style>

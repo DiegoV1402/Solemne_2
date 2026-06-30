@@ -17,8 +17,9 @@ app.use(express.json()); // Permite al servidor entender JSON
 app.use(cookieParser()); 
 
 // Rutas
-app.use('/api/auth', authRoutes); 
+app.use('/api/auth', authRoutes);
 app.use('/api/games', gameRoutes);
+app.use('/api/game', gameRoutes);
 
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGO_URI)

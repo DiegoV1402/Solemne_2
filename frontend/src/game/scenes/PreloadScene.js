@@ -11,120 +11,174 @@ export class PreloadScene extends Phaser.Scene {
 
   create() {
 
-    // ── JUGADOR — Espadachín encapuchado con espada cian ────────────
+    // ── JUGADOR — Caballero con armadura metálica, casco y escudo ───
     {
       const pg = this.make.graphics({ x: 0, y: 0, add: false })
 
-      // Brillo de espada (capa más trasera)
-      pg.fillStyle(0x003344, 0.4)
-      pg.fillRect(0, 0, 11, 30)
+      // Sombra
+      pg.fillStyle(0x000000, 0.28)
+      pg.fillEllipse(22, 43, 18, 5)
 
-      // ── Piernas ──
-      pg.fillStyle(0x0d0820, 1)
-      pg.fillRect(14, 34, 7, 10)
-      pg.fillRect(23, 34, 7, 10)
-      pg.fillStyle(0x15103a, 1)
-      pg.fillRect(15, 34, 3, 10)
-      pg.fillRect(24, 34, 3, 10)
-      // botas
-      pg.fillStyle(0x0a061a, 1)
-      pg.fillRect(13, 41, 9, 3)
-      pg.fillRect(22, 41, 9, 3)
+      // ── BOTAS / PIERNAS ──
+      pg.fillStyle(0x2a2d38, 1)        // metal oscuro
+      pg.fillRect(14, 34, 7, 9)
+      pg.fillRect(23, 34, 7, 9)
+      pg.fillStyle(0x3d4255, 1)        // reflejo
+      pg.fillRect(15, 34, 3, 8)
+      pg.fillRect(24, 34, 3, 8)
+      pg.fillStyle(0x1a1c26, 1)        // suela
+      pg.fillRect(13, 41, 9, 2)
+      pg.fillRect(22, 41, 9, 2)
+      // rodilleras
+      pg.fillStyle(0x5a6070, 1)
+      pg.fillRect(14, 33, 7, 3)
+      pg.fillRect(23, 33, 7, 3)
+      pg.fillStyle(0x8090a8, 1)
+      pg.fillRect(15, 33, 5, 1)
+      pg.fillRect(24, 33, 5, 1)
 
-      // ── Capa/Cuerpo ──
-      pg.fillStyle(0x100b22, 1)
-      pg.fillRect(10, 18, 24, 18)
-      // pliegues tela
-      pg.fillStyle(0x181236, 1)
-      pg.fillRect(11, 19, 9, 16)
-      pg.fillStyle(0x0b091c, 1)
-      pg.fillRect(22, 20, 11, 15)
-      // borde decorativo capa
-      pg.fillStyle(0x241c50, 1)
-      pg.fillRect(10, 18, 2, 16)
-      pg.fillRect(32, 18, 2, 16)
-      pg.fillRect(10, 32, 24, 2)
+      // ── CUERPO / PETO DE ARMADURA ──
+      pg.fillStyle(0x2e3240, 1)        // base peto oscuro
+      pg.fillRect(11, 19, 22, 16)
+      pg.fillStyle(0x424a5e, 1)        // placa izquierda
+      pg.fillRect(12, 20, 9, 14)
+      pg.fillStyle(0x4e5870, 1)        // placa derecha con más luz
+      pg.fillRect(21, 20, 10, 14)
+      pg.fillStyle(0x6878a0, 1)        // reflejo diagonal
+      pg.fillRect(22, 20, 6, 8)
+      pg.fillStyle(0x1e2230, 1)        // bordes del peto
+      pg.fillRect(11, 19, 2, 16)
+      pg.fillRect(31, 19, 2, 16)
+      pg.fillRect(11, 33, 22, 2)
+      // línea central del peto
+      pg.fillStyle(0x1e2230, 1)
+      pg.fillRect(21, 20, 2, 13)
+      // detalle dorado central (emblema)
+      pg.fillStyle(0xc8a030, 1)
+      pg.fillRect(19, 23, 6, 1)
+      pg.fillRect(21, 21, 2, 5)
+      pg.fillStyle(0xf0c040, 1)
+      pg.fillRect(20, 22, 4, 1)
+      pg.fillRect(21, 21, 2, 1)
 
-      // ── Brazos ──
-      pg.fillStyle(0x0e0c20, 1)
-      pg.fillRect(5, 20, 5, 14)   // brazo izq (sostiene espada)
-      pg.fillRect(33, 20, 6, 12)  // brazo der
+      // ── FALDÓN DE ARMADURA ──
+      pg.fillStyle(0x353848, 1)
+      pg.fillRect(12, 33, 20, 4)
+      pg.fillStyle(0x424a5e, 1)
+      pg.fillRect(13, 33, 6, 3)
+      pg.fillRect(21, 33, 6, 3)
+      pg.fillStyle(0x1e2230, 1)
+      pg.fillRect(19, 33, 2, 4)
 
-      // ── Capucha ──
-      pg.fillStyle(0x09071a, 1)
-      pg.fillRect(11, 5, 22, 14)  // capucha exterior
-      pg.fillRect(8, 12, 28, 8)   // ala capucha
-      pg.fillStyle(0x05030f, 1)   // sombra interior
-      pg.fillRect(13, 6, 18, 10)
+      // ── HOMBRERAS ──
+      // hombrera izquierda
+      pg.fillStyle(0x2e3240, 1)
+      pg.fillRect(6, 17, 8, 7)
+      pg.fillStyle(0x5a6480, 1)
+      pg.fillRect(7, 17, 6, 5)
+      pg.fillStyle(0x7888a8, 1)
+      pg.fillRect(8, 17, 4, 3)
+      pg.fillStyle(0x1e2230, 1)
+      pg.fillRect(6, 17, 1, 7)
+      pg.fillRect(6, 23, 8, 1)
+      // hombrera derecha
+      pg.fillStyle(0x2e3240, 1)
+      pg.fillRect(30, 17, 8, 7)
+      pg.fillStyle(0x5a6480, 1)
+      pg.fillRect(31, 17, 6, 5)
+      pg.fillStyle(0x7888a8, 1)
+      pg.fillRect(32, 17, 4, 3)
+      pg.fillStyle(0x1e2230, 1)
+      pg.fillRect(37, 17, 1, 7)
+      pg.fillRect(30, 23, 8, 1)
 
-      // ── Cara (asomando bajo capucha) ──
-      pg.fillStyle(0x38261a, 1)
-      pg.fillRect(15, 13, 14, 8)
-      pg.fillStyle(0x48321e, 1)
-      pg.fillRect(16, 14, 12, 6)
-      // nariz/mejilla hint
-      pg.fillStyle(0x3a2a1a, 1)
-      pg.fillRect(22, 17, 4, 2)
+      // ── BRAZOS / GUANTELETES ──
+      pg.fillStyle(0x2e3240, 1)
+      pg.fillRect(7, 24, 6, 10)
+      pg.fillRect(31, 24, 6, 9)
+      pg.fillStyle(0x424a5e, 1)
+      pg.fillRect(8, 24, 3, 9)
+      pg.fillRect(32, 24, 3, 8)
+      // guanteletes
+      pg.fillStyle(0x353848, 1)
+      pg.fillRect(7, 32, 6, 4)
+      pg.fillRect(31, 31, 6, 4)
+      pg.fillStyle(0x5a6480, 1)
+      pg.fillRect(8, 32, 4, 2)
+      pg.fillRect(32, 31, 4, 2)
 
-      // ── Ojo brillante (morado) ──
-      pg.fillStyle(0x6600dd, 1)
-      pg.fillRect(18, 14, 5, 4)
-      pg.fillStyle(0xaa55ff, 1)
-      pg.fillRect(19, 14, 4, 3)
-      pg.fillStyle(0xe6ccff, 1)
-      pg.fillRect(20, 14, 2, 2)
+      // ── ESCUDO (brazo izquierdo) ──
+      pg.fillStyle(0x1e2230, 1)        // borde escudo
+      pg.fillRect(0, 22, 10, 14)
+      pg.fillStyle(0x2e3240, 1)        // cuerpo escudo
+      pg.fillRect(1, 23, 8, 12)
+      pg.fillStyle(0x424a5e, 1)        // reflejo escudo
+      pg.fillRect(2, 24, 5, 9)
+      pg.fillStyle(0x5a6480, 1)
+      pg.fillRect(3, 25, 3, 6)
+      // emblema dorado del escudo
+      pg.fillStyle(0xc8a030, 1)
+      pg.fillRect(3, 27, 4, 4)
+      pg.fillRect(4, 26, 2, 6)
+      pg.fillStyle(0xf0c040, 1)
+      pg.fillRect(4, 27, 2, 4)
+      pg.fillRect(3, 28, 4, 2)
+      pg.fillStyle(0xffe060, 1)
+      pg.fillRect(4, 28, 2, 2)
+      // borde inferior redondeado del escudo
+      pg.fillStyle(0x1e2230, 1)
+      pg.fillRect(2, 35, 6, 1)
+      pg.fillRect(3, 36, 4, 1)
 
-      // ══ ESPADA CIAN ══
-
-      // Halo exterior espada
-      pg.fillStyle(0x003344, 0.6)
-      pg.fillRect(0, 0, 9, 28)
-
-      // Cuerpo hoja
-      pg.fillStyle(0x006688, 1)
-      pg.fillRect(2, 1, 6, 26)
-
-      // Hoja brillante
-      pg.fillStyle(0x00aabb, 1)
-      pg.fillRect(3, 0, 5, 27)
-      pg.fillStyle(0x00ccee, 1)
-      pg.fillRect(4, 0, 4, 26)
-
-      // Filo/reflejo
-      pg.fillStyle(0x66ddf5, 1)
-      pg.fillRect(5, 0, 2, 24)
-      pg.fillStyle(0xbbf2ff, 1)
-      pg.fillRect(5, 0, 1, 22)
-
-      // Punta espada (diamante)
-      pg.fillStyle(0x00bbdd, 1)
-      pg.fillRect(2, 0, 6, 2)
-      pg.fillStyle(0x88e8ff, 1)
-      pg.fillRect(3, 0, 4, 1)
-      pg.fillStyle(0xffffff, 0.9)
-      pg.fillRect(5, 0, 1, 1)
-
-      // Guarda cruzada
-      pg.fillStyle(0x1e2d3d, 1)
-      pg.fillRect(0, 26, 12, 5)
-      pg.fillStyle(0x2c4458, 1)
-      pg.fillRect(0, 26, 12, 2)
-      // Cristal de la guarda
-      pg.fillStyle(0x00eeff, 1)
-      pg.fillRect(4, 26, 4, 5)
-      pg.fillStyle(0xffffff, 0.9)
-      pg.fillRect(5, 27, 2, 2)
-
-      // Empuñadura
-      pg.fillStyle(0x281808, 1)
-      pg.fillRect(4, 31, 4, 9)
-      pg.fillStyle(0x3a2210, 1)
-      pg.fillRect(5, 31, 2, 9)
-      // enrollado
-      pg.fillStyle(0x180e06, 1)
-      pg.fillRect(4, 33, 4, 1)
-      pg.fillRect(4, 36, 4, 1)
-      pg.fillRect(4, 39, 4, 1)
+      // ── CASCO ──
+      // base del casco — azul acero
+      pg.fillStyle(0x1e2230, 1)        // borde exterior
+      pg.fillRect(11, 4, 22, 16)
+      pg.fillStyle(0x2e3240, 1)        // cuerpo casco
+      pg.fillRect(12, 5, 20, 14)
+      pg.fillStyle(0x424a5e, 1)        // lado izquierdo
+      pg.fillRect(13, 6, 8, 12)
+      pg.fillStyle(0x5a6890, 1)        // lado derecho más iluminado
+      pg.fillRect(21, 6, 9, 11)
+      pg.fillStyle(0x7090b8, 1)        // reflejo brillante
+      pg.fillRect(23, 6, 5, 6)
+      pg.fillStyle(0x90b0d0, 1)        // punto de luz máximo
+      pg.fillRect(25, 6, 2, 3)
+      // penacho azul del casco
+      pg.fillStyle(0x1844a0, 1)
+      pg.fillRect(17, 2, 4, 5)
+      pg.fillRect(15, 3, 8, 3)
+      pg.fillStyle(0x2255cc, 1)
+      pg.fillRect(18, 1, 2, 5)
+      pg.fillRect(16, 3, 6, 2)
+      pg.fillStyle(0x4488ff, 1)
+      pg.fillRect(19, 1, 1, 4)
+      // visera del casco (ranura oscura para los ojos)
+      pg.fillStyle(0x0a0c12, 1)
+      pg.fillRect(13, 13, 18, 4)
+      pg.fillStyle(0x0d0f18, 1)
+      pg.fillRect(14, 14, 16, 3)
+      // ojos brillantes en la visera — amarillo/dorado
+      pg.fillStyle(0xd4a020, 1)
+      pg.fillRect(15, 14, 5, 2)
+      pg.fillRect(24, 14, 5, 2)
+      pg.fillStyle(0xffe060, 1)
+      pg.fillRect(16, 14, 3, 1)
+      pg.fillRect(25, 14, 3, 1)
+      // barbote / parte inferior del casco
+      pg.fillStyle(0x2e3240, 1)
+      pg.fillRect(13, 17, 18, 4)
+      pg.fillStyle(0x424a5e, 1)
+      pg.fillRect(14, 17, 8, 3)
+      pg.fillStyle(0x4e5870, 1)
+      pg.fillRect(22, 17, 7, 3)
+      // ranuras del barbote
+      pg.fillStyle(0x1e2230, 1)
+      pg.fillRect(15, 18, 14, 1)
+      pg.fillRect(15, 20, 14, 1)
+      // borde inferior del casco
+      pg.fillStyle(0x1e2230, 1)
+      pg.fillRect(11, 19, 22, 1)
 
       pg.generateTexture('player', 44, 44)
       pg.destroy()

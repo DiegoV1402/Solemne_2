@@ -81,7 +81,7 @@
 * **Jueves 25/06:**
   - [x] Integrar el servicio REST externo gratuito.
 * **Viernes 26/06 y Sábado 27/06:**
-  - [ ] Implementar la Tabla de Clasificación (Leaderboard) obteniendo los datos desde el backend.
+  - [x] Implementar la Tabla de Clasificación (Leaderboard) obteniendo los datos desde el backend.
   - [ ] Modificar el sistema de "Bendiciones Corruptas" en el frontend para el intercambio o compra de potenciadores (cambios de armas y cartas).
 * **Domingo 28/06:**
   - [ ] Refinar las pruebas unitarias (frontend y backend) garantizando que se verifiquen correctamente en GitHub Actions.

@@ -51,6 +51,10 @@
         <span class="fire-icon">🔥</span>
       </button>
 
+      <button class="menu-btn" @click="toggleLeaderboard">
+        TABLA DE CLASIFICACIÓN
+      </button>
+
       <button class="menu-btn" @click="toggleCredits">
         CRÉDITOS
       </button>
@@ -58,6 +62,12 @@
       <button class="menu-btn secondary" @click="handleLogout">
         CERRAR SESIÓN
       </button>
+
+      <transition name="slide-down">
+        <div v-if="showLeaderboard" class="leaderboard-container">
+          <Leaderboard />
+        </div>
+      </transition>
 
       <transition name="slide-down">
         <div v-if="showCredits" class="credits-box">
@@ -81,12 +91,15 @@ import { ref } from 'vue'
 import { useGameStore }   from '@/stores/gameStore'
 import { usePlayerStore } from '@/stores/playerStore'
 import { useAuthStore }   from '@/stores/authStore' 
+// Importamos el nuevo componente
+import Leaderboard from '@/components/ui/Leaderboard.vue'
 
 const gameStore   = useGameStore()
 const playerStore = usePlayerStore()
 const authStore   = useAuthStore()
 
 const showCredits = ref(false)
+const showLeaderboard = ref(false) // Estado reactivo para el ranking
 
 // Estados reactivos para controlar el login y registro
 const username = ref('')
@@ -132,6 +145,13 @@ function handlePlay() {
 
 function toggleCredits() {
   showCredits.value = !showCredits.value
+  if (showCredits.value) showLeaderboard.value = false // Cierra el ranking si abres créditos
+}
+
+// Función para alternar la visibilidad de la tabla
+function toggleLeaderboard() {
+  showLeaderboard.value = !showLeaderboard.value
+  if (showLeaderboard.value) showCredits.value = false // Cierra los créditos si abres el ranking
 }
 </script>
 
@@ -349,16 +369,25 @@ function toggleCredits() {
   line-height: 1.5;
 }
 
-/* ── Cuadro de Créditos ──────────────────────────────────── */
-.credits-box {
-  background: rgba(0,0,0,0.65);
-  border: 1px solid rgba(123,47,255,0.35);
+/* ── Cuadro de Créditos y Leaderboard ────────────────────── */
+.credits-box,
+.leaderboard-container {
+  background: rgba(0,0,0,0.85);
+  border: 1px solid rgba(123,47,255,0.5);
   padding: 14px 28px;
   font-size: 8px;
   text-align: center;
   line-height: 2;
-  color: rgba(232,217,192,0.6);
+  color: rgba(232,217,192,0.8);
   width: 290px;
+  box-shadow: 0 0 20px rgba(123,47,255,0.2);
+}
+
+.leaderboard-container {
+  width: 350px; /* Un poco más ancho para acomodar la tabla */
+  max-height: 300px;
+  overflow-y: auto;
+  border-color: var(--color-gold);
 }
 
 /* ── Pie de Página ──────────────────────────────────────── */
@@ -396,5 +425,17 @@ function toggleCredits() {
   border-radius: 8px;
   box-shadow: 0 0 15px rgba(201,147,58,0.4);
   image-rendering: pixelated;
+}
+
+/* Scrollbar personalizado para el Leaderboard */
+.leaderboard-container::-webkit-scrollbar {
+  width: 6px;
+}
+.leaderboard-container::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.5);
+}
+.leaderboard-container::-webkit-scrollbar-thumb {
+  background: var(--color-gold);
+  border-radius: 3px;
 }
 </style>

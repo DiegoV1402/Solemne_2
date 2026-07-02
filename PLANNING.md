@@ -82,14 +82,15 @@
   - [x] Integrar el servicio REST externo gratuito.
 * **Viernes 26/06 y Sábado 27/06:**
   - [x] Implementar la Tabla de Clasificación (Leaderboard) obteniendo los datos desde el backend.
-  - [ ] Modificar el sistema de "Bendiciones Corruptas" en el frontend para el intercambio o compra de potenciadores (cambios de armas y cartas).
+  - [ ] ~~Modificar el sistema de "Bendiciones Corruptas" en el frontend para el intercambio o compra de potenciadores (cambios de armas y cartas).~~
+  - [ ] Implementar un personaje jugable a distancia para que el jugador eliga con cual desea jugar.
 * **Domingo 28/06:**
   - [ ] Refinar las pruebas unitarias (frontend y backend) garantizando que se verifiquen correctamente en GitHub Actions.
 
 📊 **Balance de la Semana 2:**
 * **Lo que se logró completar:** 
 * **Lo que no se logró y el motivo:** 
-
+ - Se modifico la tarea del dia Sábado 27/06 por falta de tiempo y se reemplazo otra por temas de simpleza.
 ---
 
 ### 🔹 Semana 3: Nuevos Enemigos y Entrega Final

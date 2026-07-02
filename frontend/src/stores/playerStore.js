@@ -2,9 +2,12 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { PLAYER_BASE } from '@/entities/playerConfig'
+import { PLAYER_BASE, PLAYER_CLASSES, DEFAULT_CLASS } from '@/entities/playerConfig'
 
 export const usePlayerStore = defineStore('player', () => {
+  // Clase elegida por el jugador en el menú: 'melee' | 'mage'
+  const characterClass = ref(DEFAULT_CLASS)
+
   const maxHp    = ref(PLAYER_BASE.maxHp)
   const hp       = ref(PLAYER_BASE.maxHp)
   const speed    = ref(PLAYER_BASE.speed)
@@ -20,14 +23,20 @@ export const usePlayerStore = defineStore('player', () => {
   const xpPercent = computed(() => Math.min(100, (xp.value / xpToNext.value) * 100))
   const isAlive   = computed(() => hp.value > 0)
 
-  function reset() {
-    maxHp.value       = PLAYER_BASE.maxHp
-    hp.value          = PLAYER_BASE.maxHp
-    speed.value       = PLAYER_BASE.speed
-    damage.value      = PLAYER_BASE.damage
+  const classInfo = computed(() => PLAYER_CLASSES[characterClass.value] ?? PLAYER_CLASSES[DEFAULT_CLASS])
+
+  // Si se pasa `className`, cambia de clase; si no, mantiene la clase actual.
+  function reset(className = characterClass.value) {
+    characterClass.value = PLAYER_CLASSES[className] ? className : DEFAULT_CLASS
+    const base = PLAYER_CLASSES[characterClass.value].base
+
+    maxHp.value       = base.maxHp
+    hp.value          = base.maxHp
+    speed.value       = base.speed
+    damage.value      = base.damage
     level.value       = 1
     xp.value          = 0
-    xpToNext.value    = PLAYER_BASE.xpToNext
+    xpToNext.value    = base.xpToNext
     pendingUpgrade.value = false
   }
 
@@ -77,6 +86,7 @@ export const usePlayerStore = defineStore('player', () => {
   }
 
   return {
+    characterClass, classInfo,
     maxHp, hp, speed, damage, level, xp, xpToNext, pendingUpgrade,
     hpPercent, xpPercent, isAlive,
     reset, takeDamage, gainXp, applyUpgrade

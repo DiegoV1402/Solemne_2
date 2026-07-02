@@ -5,6 +5,8 @@
       <img v-if="authStore.user" :src="authStore.user.avatarUrl" class="hud-avatar" alt="Avatar"/>
       <div class="hud-avatar-placeholder" v-else>👻</div>
 
+      <span class="hud-class-icon" :title="playerStore.classInfo.label">{{ playerStore.classInfo.icon }}</span>
+
       <div class="hud-bars">
         <div class="hud-row">
           <span class="hud-icon">❤️</span>
@@ -99,6 +101,16 @@ const isBossRoom  = computed(() => gameStore.currentRoom?.type === 'boss')
   align-items: center;
   justify-content: center;
   font-size: 18px;
+}
+
+.hud-class-icon {
+  font-size: 18px;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid var(--color-gold);
+  border-radius: 4px;
+  filter: drop-shadow(0 0 4px rgba(201,147,58,0.5));
 }
 
 .hud-topright {

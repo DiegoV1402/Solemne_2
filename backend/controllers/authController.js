@@ -47,6 +47,8 @@ export const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Credenciales inválidas' });
 
+    console.log("🚨 ATENCIÓN: El secreto JWT es:", process.env.JWT_SECRET);
+    console.log("🚨 ATENCIÓN: Intentando firmar token para el usuario:", user.username);
     // 3. Generar Token JWT
     const token = jwt.sign(
       { id: user._id, role: user.role },

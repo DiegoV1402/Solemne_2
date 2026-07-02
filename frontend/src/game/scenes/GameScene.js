@@ -1,9 +1,10 @@
 import Phaser from 'phaser'
 import { useGameStore }   from '@/stores/gameStore'
 import { usePlayerStore } from '@/stores/playerStore'
-import { PLAYER_SIZE }    from '@/entities/playerConfig'
+import { PLAYER_SIZE, PLAYER_CLASSES, DEFAULT_CLASS } from '@/entities/playerConfig'
 import { EnemyManager }   from '@/systems/EnemyManager'
 import { SwordAttack }    from '@/systems/SwordAttack'
+import { StaffAttack }    from '@/systems/StaffAttack'
 import { RoomBuilder }    from '@/game/RoomBuilder'
 import { DUNGEON_MAP, DOOR_DEFS, OPPOSITE_DIR, SPAWN_BY_ENTRY } from '@/game/data/dungeonMap'
 
@@ -40,8 +41,8 @@ export class GameScene extends Phaser.Scene {
     if (this.gameStore.phase !== 'playing') return
     this._handleMovement()
     this.gameStore.addTime(delta)
-    if (this.enemyManager) this.enemyManager.update(time, delta, this.player)
-    if (this.swordAttack)  this.swordAttack.update(time)
+    if (this.enemyManager)  this.enemyManager.update(time, delta, this.player)
+    if (this.attackSystem)  this.attackSystem.update(time)
     if (!this._transitioning) this._checkDoorZones()
 
     if (this.showDebug) {
@@ -112,8 +113,10 @@ export class GameScene extends Phaser.Scene {
     // 7. Enemigos
     this._setupEnemies(roomData)
 
-    // 8. Espada
-    this.swordAttack = new SwordAttack(
+    // 8. Sistema de ataque — depende de la clase elegida (Guerrero → espada, Mago → bastón)
+    const classInfo   = PLAYER_CLASSES[this.playerStore.characterClass] ?? PLAYER_CLASSES[DEFAULT_CLASS]
+    const AttackClass = classInfo.attack === 'staff' ? StaffAttack : SwordAttack
+    this.attackSystem  = new AttackClass(
       this, this.player, this.enemyManager, this.playerStore
     )
 
@@ -142,7 +145,7 @@ export class GameScene extends Phaser.Scene {
 
     // B) Destruir sistemas lógicos
     if (this.enemyManager) { this.enemyManager.destroy(); this.enemyManager = null }
-    if (this.swordAttack)  { this.swordAttack.destroy();  this.swordAttack  = null }
+    if (this.attackSystem) { this.attackSystem.destroy(); this.attackSystem = null }
 
     // C) Destruir grupos de física (seguro ahora que no hay colliders).
     //    destroy(true) elimina el grupo Y todos sus hijos (más limpio que clear).
@@ -325,7 +328,8 @@ export class GameScene extends Phaser.Scene {
 
   // ── Jugador ────────────────────────────────────────────────
   _createPlayer() {
-    this.player = this.physics.add.sprite(GAME_W / 2, GAME_H / 2, 'player')
+    const classInfo = PLAYER_CLASSES[this.playerStore.characterClass] ?? PLAYER_CLASSES[DEFAULT_CLASS]
+    this.player = this.physics.add.sprite(GAME_W / 2, GAME_H / 2, classInfo.texture)
     this.player.setDisplaySize(PLAYER_SIZE, PLAYER_SIZE).setDepth(5)
     this.player.body.setSize(PLAYER_SIZE * 0.7, PLAYER_SIZE * 0.7)
     this.player.body.setOffset(PLAYER_SIZE * 0.15, PLAYER_SIZE * 0.15)
@@ -375,8 +379,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   _createHint() {
+    const isMage = this.playerStore.characterClass === 'mage'
+    const action = isMage ? 'SPACE/Clic hechizo' : 'SPACE/Clic espada'
     const h = this.add.text(GAME_W / 2, GAME_H - 18,
-      'WASD mover  |  SPACE/Clic espada  |  Puerta verde: avanzar',
+      `WASD mover  |  ${action}  |  Puerta verde: avanzar`,
       { fontFamily: "'Press Start 2P'", fontSize: '5px', color: '#ffffff33' }
     ).setOrigin(0.5).setDepth(20)
     this.tweens.add({ targets: h, alpha: 0, delay: 6000, duration: 1500,

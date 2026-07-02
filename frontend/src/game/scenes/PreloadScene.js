@@ -184,6 +184,131 @@ export class PreloadScene extends Phaser.Scene {
       pg.destroy()
     }
 
+    // ── JUGADOR (MAGO) — Túnica arcana con capucha y bastón rúnico ──
+    {
+      const mg = this.make.graphics({ x: 0, y: 0, add: false })
+
+      // Sombra
+      mg.fillStyle(0x000000, 0.28)
+      mg.fillEllipse(22, 43, 18, 5)
+
+      // ── BOTAS (asoman bajo la túnica) ──
+      mg.fillStyle(0x241830, 1)
+      mg.fillRect(15, 37, 6, 6)
+      mg.fillRect(23, 37, 6, 6)
+      mg.fillStyle(0x1a1022, 1)
+      mg.fillRect(14, 41, 8, 2)
+      mg.fillRect(22, 41, 8, 2)
+
+      // ── FALDÓN DE TÚNICA (forma acampanada) ──
+      mg.fillStyle(0x2c1a4a, 1)
+      mg.fillRect(9, 28, 26, 11)
+      mg.fillStyle(0x3a2264, 1)
+      mg.fillRect(10, 29, 11, 9)
+      mg.fillStyle(0x241640, 1)
+      mg.fillRect(23, 29, 11, 9)
+      // bordes dorados del faldón (eco del emblema del guerrero)
+      mg.fillStyle(0xc8a030, 1)
+      mg.fillRect(9, 37, 26, 2)
+      mg.fillStyle(0xf0c040, 1)
+      mg.fillRect(9, 37, 26, 1)
+
+      // ── TÚNICA / TORSO ──
+      mg.fillStyle(0x36205e, 1)
+      mg.fillRect(12, 18, 20, 12)
+      mg.fillStyle(0x452a78, 1)
+      mg.fillRect(13, 19, 9, 10)
+      mg.fillStyle(0x2a1850, 1)
+      mg.fillRect(22, 19, 9, 10)
+      // cinturón con hebilla dorada
+      mg.fillStyle(0x1a1030, 1)
+      mg.fillRect(12, 27, 20, 3)
+      mg.fillStyle(0xc8a030, 1)
+      mg.fillRect(19, 27, 6, 3)
+      mg.fillStyle(0xf0c040, 1)
+      mg.fillRect(20, 28, 4, 1)
+      // runas bordadas centrales (arcano cian)
+      mg.fillStyle(0x66ccff, 1)
+      mg.fillRect(20, 20, 2, 6)
+      mg.fillRect(19, 22, 4, 1)
+
+      // ── HOMBRERAS DE LA TÚNICA ──
+      mg.fillStyle(0x2c1a4a, 1)
+      mg.fillRect(6, 17, 8, 7)
+      mg.fillRect(30, 17, 8, 7)
+      mg.fillStyle(0x452a78, 1)
+      mg.fillRect(7, 17, 6, 5)
+      mg.fillRect(31, 17, 6, 5)
+      mg.fillStyle(0x1a1030, 1)
+      mg.fillRect(6, 17, 1, 7)
+      mg.fillRect(37, 17, 1, 7)
+
+      // ── BRAZOS / MANGAS ──
+      mg.fillStyle(0x2c1a4a, 1)
+      mg.fillRect(7, 24, 6, 10)
+      mg.fillRect(31, 22, 6, 12)
+      mg.fillStyle(0x3a2264, 1)
+      mg.fillRect(8, 24, 3, 9)
+      mg.fillRect(32, 22, 3, 11)
+      // manos
+      mg.fillStyle(0xd4b088, 1)
+      mg.fillRect(7, 32, 6, 4)
+      mg.fillRect(30, 30, 7, 5)
+
+      // ── ORBE FLOTANTE (mano izquierda) — eco del escudo del guerrero ──
+      mg.fillStyle(0x1a1030, 0.5)
+      mg.fillCircle(10, 34, 6)
+      mg.fillStyle(0x3355cc, 0.9)
+      mg.fillCircle(10, 34, 5)
+      mg.fillStyle(0x66aaff, 1)
+      mg.fillCircle(10, 34, 3)
+      mg.fillStyle(0xccf0ff, 1)
+      mg.fillCircle(9, 33, 1.5)
+
+      // ── BASTÓN (mano derecha, se extiende hacia arriba) ──
+      mg.fillStyle(0x4a3018, 1)
+      mg.fillRect(35, 8, 3, 26)
+      mg.fillStyle(0x6a4820, 1)
+      mg.fillRect(35, 8, 1, 26)
+      // orbe rúnico en la punta del bastón
+      mg.fillStyle(0x1a1030, 0.6)
+      mg.fillCircle(36, 6, 8)
+      mg.fillStyle(0x5533cc, 0.9)
+      mg.fillCircle(36, 6, 6)
+      mg.fillStyle(0x8866ff, 1)
+      mg.fillCircle(36, 6, 4)
+      mg.fillStyle(0xe0ccff, 1)
+      mg.fillCircle(35, 5, 1.5)
+
+      // ── CAPUCHA (cabeza) ──
+      mg.fillStyle(0x1a1030, 1)
+      mg.fillRect(11, 3, 22, 16)
+      mg.fillStyle(0x2c1a4a, 1)
+      mg.fillRect(12, 4, 20, 14)
+      mg.fillStyle(0x36205e, 1)
+      mg.fillRect(13, 5, 8, 12)
+      mg.fillStyle(0x1e1238, 1)
+      mg.fillRect(21, 5, 9, 11)
+      // punta de la capucha
+      mg.fillStyle(0x1a1030, 1)
+      mg.fillRect(18, 0, 6, 4)
+      mg.fillStyle(0x2c1a4a, 1)
+      mg.fillRect(19, 1, 4, 3)
+      // sombra del rostro bajo la capucha
+      mg.fillStyle(0x0a0512, 1)
+      mg.fillRect(14, 12, 16, 6)
+      // ojos brillantes (arcano cian) — equivalente a la visera dorada del guerrero
+      mg.fillStyle(0x44ddff, 1)
+      mg.fillRect(16, 13, 5, 3)
+      mg.fillRect(24, 13, 5, 3)
+      mg.fillStyle(0xaaf4ff, 1)
+      mg.fillRect(17, 13, 3, 1)
+      mg.fillRect(25, 13, 3, 1)
+
+      mg.generateTexture('player-mage', 44, 44)
+      mg.destroy()
+    }
+
 
     // ── SUELO (sin cambios) ──────────────────────────────────────────
     {
@@ -524,6 +649,21 @@ export class PreloadScene extends Phaser.Scene {
       arrowG.fillTriangle(0, 8, 4, 4, 0, 4)
       arrowG.generateTexture('arrow', 20, 8)
       arrowG.destroy()
+    }
+
+    // ── PROYECTIL ARCANO (bastón del Mago) ───────────────────────────
+    {
+      const mb = this.make.graphics({ x: 0, y: 0, add: false })
+      mb.fillStyle(0x3355cc, 0.5)
+      mb.fillCircle(9, 9, 9)
+      mb.fillStyle(0x66aaff, 0.9)
+      mb.fillCircle(9, 9, 6)
+      mb.fillStyle(0xaaddff, 1)
+      mb.fillCircle(9, 9, 3)
+      mb.fillStyle(0xffffff, 1)
+      mb.fillCircle(8, 8, 1.5)
+      mb.generateTexture('mana-bolt', 18, 18)
+      mb.destroy()
     }
 
     // ── BOSS (sin cambios) ───────────────────────────────────────────

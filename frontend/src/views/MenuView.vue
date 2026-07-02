@@ -38,14 +38,14 @@
       </button>
     </nav>
 
-    <nav class="menu-nav" v-else>
+    <nav class="menu-nav" v-else-if="!showClassSelect">
       <div class="user-profile" v-if="authStore.user">
         <img :src="authStore.user.avatarUrl" alt="Avatar Pixel Art" class="user-avatar" />
         <p class="welcome-msg">¡Bienvenido, {{ authStore.user.username }}!</p>
       </div>
       <p class="welcome-msg" v-else>¡Bienvenido, guerrero!</p>
       
-      <button class="menu-btn primary" @click="handlePlay">
+      <button class="menu-btn primary" @click="openClassSelect">
         <span class="fire-icon">🔥</span>
         JUGAR
         <span class="fire-icon">🔥</span>
@@ -78,6 +78,43 @@
       </transition>
     </nav>
 
+    <!-- ── Selección de clase ─────────────────────────────────── -->
+    <nav class="menu-nav class-select" v-else>
+      <h2 class="auth-title">ELIGE TU CLASE</h2>
+
+      <div class="class-cards-row">
+        <div
+          v-for="cls in classOptions"
+          :key="cls.id"
+          class="class-card"
+          :class="{ selected: pendingClass === cls.id }"
+          @click="pendingClass = cls.id"
+        >
+          <div class="class-card-frame">
+            <div class="class-card-icon">{{ cls.icon }}</div>
+            <div class="class-card-glow" v-if="pendingClass === cls.id" />
+          </div>
+          <div class="class-card-name">{{ cls.label }}</div>
+          <div class="class-card-stats">
+            <span>❤️ {{ cls.base.maxHp }}</span>
+            <span>⚔️ {{ cls.base.damage }}</span>
+            <span>{{ cls.attack === 'staff' ? '🏹 rango' : '🗡️ melee' }}</span>
+          </div>
+          <div class="class-card-desc">{{ cls.desc }}</div>
+        </div>
+      </div>
+
+      <button class="menu-btn primary" @click="confirmClassSelect">
+        <span class="fire-icon">🔥</span>
+        COMENZAR
+        <span class="fire-icon">🔥</span>
+      </button>
+
+      <button class="menu-btn secondary" @click="closeClassSelect">
+        ⬅ VOLVER
+      </button>
+    </nav>
+
     <footer class="menu-footer">
       <span>WASD — Mover</span>
       <span class="sep">·</span>
@@ -91,6 +128,7 @@ import { ref } from 'vue'
 import { useGameStore }   from '@/stores/gameStore'
 import { usePlayerStore } from '@/stores/playerStore'
 import { useAuthStore }   from '@/stores/authStore' 
+import { PLAYER_CLASSES, DEFAULT_CLASS } from '@/entities/playerConfig'
 // Importamos el nuevo componente
 import Leaderboard from '@/components/ui/Leaderboard.vue'
 
@@ -100,6 +138,26 @@ const authStore   = useAuthStore()
 
 const showCredits = ref(false)
 const showLeaderboard = ref(false) // Estado reactivo para el ranking
+
+// ── Selección de clase (Guerrero / Mago) ────────────────────
+const showClassSelect = ref(false)
+const pendingClass    = ref(DEFAULT_CLASS)
+const classOptions    = Object.values(PLAYER_CLASSES)
+
+function openClassSelect() {
+  pendingClass.value = playerStore.characterClass || DEFAULT_CLASS
+  showClassSelect.value = true
+}
+
+function closeClassSelect() {
+  showClassSelect.value = false
+}
+
+function confirmClassSelect() {
+  playerStore.reset(pendingClass.value)
+  gameStore.startGame()
+  showClassSelect.value = false
+}
 
 // Estados reactivos para controlar el login y registro
 const username = ref('')
@@ -136,11 +194,6 @@ function toggleMode() {
 
 function handleLogout() {
   authStore.logout()
-}
-
-function handlePlay() {
-  playerStore.reset()
-  gameStore.startGame()
 }
 
 function toggleCredits() {
@@ -426,6 +479,88 @@ function toggleLeaderboard() {
   box-shadow: 0 0 15px rgba(201,147,58,0.4);
   image-rendering: pixelated;
 }
+
+/* ── Selección de clase (Guerrero / Mago) ────────────────── */
+.class-select { gap: 18px; }
+
+.class-cards-row {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.class-card {
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 14px 20px;
+  background: linear-gradient(180deg, #18102e 0%, #0e0820 100%);
+  border: 2px solid #3a2060;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  clip-path: polygon(
+    8px 0%, calc(100% - 8px) 0%,
+    100% 8px, 100% calc(100% - 8px),
+    calc(100% - 8px) 100%, 8px 100%,
+    0% calc(100% - 8px), 0% 8px
+  );
+  position: relative;
+}
+.class-card:hover {
+  border-color: #8855cc;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(120,60,255,0.3);
+}
+.class-card.selected {
+  border-color: var(--color-gold);
+  background: linear-gradient(180deg, #2a1c08 0%, #1a1004 100%);
+  transform: translateY(-6px);
+  box-shadow: 0 0 0 1px #8a6020, 0 8px 32px rgba(230,160,40,0.4);
+}
+
+.class-card-frame {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, #1a1030 0%, #0c0820 100%);
+  border: 2px solid #3a2a60;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  clip-path: polygon(6px 0%,calc(100% - 6px) 0%,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0% calc(100% - 6px),0% 6px);
+}
+.class-card.selected .class-card-frame { border-color: #cc9922; }
+.class-card-icon { font-size: 28px; line-height: 1; }
+.class-card-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(230,160,40,0.15) 0%, transparent 70%);
+  animation: pulse-glow 1.2s ease-in-out infinite alternate;
+}
+@keyframes pulse-glow { from { opacity: .6; } to { opacity: 1; } }
+
+.class-card-name {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: #e0d0ff;
+  letter-spacing: 1px;
+  text-align: center;
+}
+.class-card.selected .class-card-name { color: #ffdd88; }
+
+.class-card-stats {
+  display: flex;
+  gap: 8px;
+  font-size: 7px;
+  color: rgba(232,217,192,0.8);
+}
+
+.class-card-desc {
+  font-family: var(--font-pixel);
+  font-size: 6px;
+  color: rgba(200,180,255,0.55);
+  text-align: center;
+  line-height: 1.7;
+}
+.class-card.selected .class-card-desc { color: rgba(255,221,136,0.7); }
 
 /* Scrollbar personalizado para el Leaderboard */
 .leaderboard-container::-webkit-scrollbar {

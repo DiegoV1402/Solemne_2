@@ -12,10 +12,13 @@ services:
   backend:
     build: ./backend
     container_name: backend_service
+    restart: always
     ports:
-      - "3000:3000" # Ajusta si tu backend expone otro puerto
+      - "3000:3000" 
+    # INYECCIÓN DIRECTA: Esto es a prueba de fallos
     environment:
-      - MONGO_URI=mongodb://mongodb:27017/mi_base_de_datos
+      - MONGO_URI=mongodb://mongodb:27017/demon_threshold
+      - JWT_SECRET=demon_threshold_clave_secreta_2026
     depends_on:
       - mongodb
 
@@ -23,7 +26,7 @@ services:
     build: ./frontend
     container_name: frontend_service
     ports:
-      - "80:80" # Ajusta si tu frontend expone otro puerto
+      - "80:80" 
     depends_on:
       - backend
 

@@ -1,5 +1,5 @@
-# Usa una imagen oficial de Node.js
-FROM node:18-slim
+# Usa una imagen oficial de Node.js ligera
+FROM node:22-slim
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
@@ -7,17 +7,18 @@ WORKDIR /app
 # Instala pnpm globalmente
 RUN npm install -g pnpm
 
-# Copia los archivos de dependencias primero
-COPY package.json pnpm-lock.yaml ./
-
-# Instala las dependencias
-RUN pnpm install
-
-# Copia el resto del código de tu backend
+# 1. Copiamos absolutamente TODO tu proyecto al contenedor primero
 COPY . .
 
-# Expone el puerto (asumo el 3000, si tu index.js usa otro, cámbialo)
+
+# Esto evita que los accesos directos de tu PC rompan la instalación en Linux
+RUN rm -rf node_modules
+
+# 3. Instalamos las dependencias 100% limpias desde cero
+RUN pnpm install
+
+# Expone el puerto donde corre Express
 EXPOSE 3000
 
-# Comando para ejecutar la aplicación
+# Comando para encender el servidor backend
 CMD ["node", "index.js"]

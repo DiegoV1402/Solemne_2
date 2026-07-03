@@ -12,11 +12,12 @@
             cleared:   room.cleared,
             uncleared: !room.cleared && room.type !== 'boss',
             boss:      room.type === 'boss',
+            archer:    room.bossType === 'archer',
             start:     room.type === 'start',
           }"
           :style="{ gridColumn: room.col, gridRow: room.row }"
         >
-          <template v-if="room.type === 'boss'">☠</template>
+          <template v-if="room.type === 'boss'">{{ room.bossType === 'archer' ? '🏹' : '☠' }}</template>
           <template v-else-if="room.cleared">✓</template>
           <template v-else-if="room.type === 'start'">S</template>
         </div>
@@ -39,17 +40,26 @@ import { DUNGEON_MAP }  from '@/game/data/dungeonMap'
 
 const gameStore = useGameStore()
 
-// Posiciones de cada sala en la cuadrícula 5×3
-// Layout:  Row1=[5]   Row2=[S][1][2][4][Boss]   Row3=[3][6]
+// Posiciones de cada sala en la cuadrícula 9×3
+// Layout:  Row1=[5]        [12]
+//          Row2=[S][1][2][4][Boss][8][9][11][Boss2]
+//          Row3=  [3][6]        [10][13]
 const POS = {
-  0: { col: 1, row: 2 },
-  1: { col: 2, row: 2 },
-  2: { col: 3, row: 2 },
-  3: { col: 2, row: 3 },
-  4: { col: 4, row: 2 },
-  5: { col: 3, row: 1 },
-  6: { col: 3, row: 3 },
-  7: { col: 5, row: 2 },
+  0:  { col: 1, row: 2 },
+  1:  { col: 2, row: 2 },
+  2:  { col: 3, row: 2 },
+  3:  { col: 2, row: 3 },
+  4:  { col: 4, row: 2 },
+  5:  { col: 3, row: 1 },
+  6:  { col: 3, row: 3 },
+  7:  { col: 5, row: 2 },
+  8:  { col: 6, row: 2 },
+  9:  { col: 7, row: 2 },
+  10: { col: 6, row: 3 },
+  11: { col: 8, row: 2 },
+  12: { col: 7, row: 1 },
+  13: { col: 7, row: 3 },
+  14: { col: 9, row: 2 },
 }
 
 const rooms = computed(() => {
@@ -60,13 +70,14 @@ const rooms = computed(() => {
   return Object.values(DUNGEON_MAP.rooms).map(r => {
     const state   = gameStore.dungeonRooms[r.id] ?? r
     return {
-      id:      r.id,
-      type:    r.type,
-      cleared: !!state.cleared,
-      visited: !!state.visited,
-      visible: state.visited || adjacent.includes(r.id) || r.id === curId,
-      col:     POS[r.id]?.col ?? 1,
-      row:     POS[r.id]?.row ?? 1,
+      id:       r.id,
+      type:     r.type,
+      bossType: r.bossType,
+      cleared:  !!state.cleared,
+      visited:  !!state.visited,
+      visible:  state.visited || adjacent.includes(r.id) || r.id === curId,
+      col:      POS[r.id]?.col ?? 1,
+      row:      POS[r.id]?.row ?? 1,
     }
   })
 })
@@ -94,7 +105,7 @@ const rooms = computed(() => {
 
 .mm-grid {
   display: grid;
-  grid-template-columns: repeat(5, 20px);
+  grid-template-columns: repeat(9, 20px);
   grid-template-rows:    repeat(3, 14px);
   gap: 3px;
 }
@@ -121,6 +132,17 @@ const rooms = computed(() => {
   border-color: #bb3300;
   color: #ff6622;
   animation: bossPulse 1.1s ease-in-out infinite alternate;
+}
+.mm-cell.archer    {
+  background: #0e2a12;
+  border-color: #33cc55;
+  color: #66ff88;
+  animation: archerPulse 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes archerPulse {
+  from { border-color: #33cc55; }
+  to   { border-color: #66ff88; box-shadow: 0 0 5px rgba(100,255,140,0.5); }
 }
 .mm-cell.current {
   border-color: #ffffff !important;

@@ -48,7 +48,8 @@ export const useGameStore = defineStore('game', () => {
   const roomLabel = computed(() => {
     const r = currentRoom.value
     if (!r) return ''
-    if (r.type === 'boss')  return '⚠ SALA JEFE ⚠'
+    if (r.type === 'boss')  return r.bossType === 'archer' ? '☠ SEÑOR ARQUERO ☠' : '⚠ SALA JEFE ⚠'
+    if (r.sanctuaryEntry)   return '🔮 SANTUARIO DEL MAGO 🔮'
     // Sala 0 (inicio) → "SALA 1", sala 1 → "SALA 2", etc.
     return r.type === 'start'
       ? 'SALA 1  (INICIO)'

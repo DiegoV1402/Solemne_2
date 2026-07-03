@@ -26,7 +26,7 @@
         <div class="panel victory-panel">
           <div class="ornament gold-ornament">⬡ ──────────────── ⬡</div>
           <h2 class="panel-title victory-title">¡VICTORIA!</h2>
-          <p class="victory-sub">EL GUARDIÁN CORRUPTO HA CAÍDO</p>
+          <p class="victory-sub">EL SEÑOR ARQUERO HA CAÍDO</p>
           <div class="ornament gold-ornament">⬡ ──────────────── ⬡</div>
           <div class="gameover-stats">
             <div class="stat-row"><span class="stat-label">Tiempo</span><span class="stat-val gold">{{ gameStore.elapsedFormatted }}</span></div>

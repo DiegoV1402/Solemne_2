@@ -3,10 +3,12 @@
 // y que sean limpiados al cambiar de sala.
 
 import Phaser from 'phaser'
-import { Enemy }  from '@/entities/Enemy'
-import { Archer } from '@/entities/Archer'
-import { Boss }   from '@/game/entities/Boss'
-import { ENEMY_BASE, ARCHER_BASE } from '@/entities/enemyConfig'
+import { Enemy }     from '@/entities/Enemy'
+import { Archer }    from '@/entities/Archer'
+import { MageEnemy } from '@/entities/MageEnemy'
+import { Boss }      from '@/game/entities/Boss'
+import { ArcherBoss } from '@/game/entities/ArcherBoss'
+import { ENEMY_BASE, ARCHER_BASE, MAGE_BASE } from '@/entities/enemyConfig'
 
 const GAME_W = 900, GAME_H = 600
 
@@ -19,10 +21,13 @@ export class EnemyManager {
     this.enemies    = []
     this.group      = scene.physics.add.group()
     this.arrowGroup = scene.physics.add.group()
+    this.boltGroup  = scene.physics.add.group()   // hechizos del Mago enemigo
     this.destroyed  = false
     this._activated   = false
     this._roomCleared = false
     this._roomType    = null
+    this._roomData    = null
+    this._enemyPool   = null   // 'mage' en las salas del Santuario del Mago
     this._colTracker  = null   // función inyectada desde GameScene
 
     this.onRoomCleared   = null
@@ -41,13 +46,22 @@ export class EnemyManager {
   }
 
   // ── Activar sala ───────────────────────────────────────────
-  activate(roomType) {
+  // Acepta el objeto roomData completo (o, por compatibilidad, un string
+  // con el tipo de sala) para poder leer roomData.enemyPool.
+  activate(roomData) {
     if (this._activated || this.destroyed) return
     this._activated = true
+
+    const isObj    = typeof roomData === 'object' && roomData !== null
+    const roomType = isObj ? roomData.type : roomData
     this._roomType  = roomType
+    this._roomData  = isObj ? roomData : null
+    this._enemyPool = isObj ? (roomData.enemyPool ?? null) : null
 
     if (roomType === 'boss') {
-      this._spawnBoss()
+      this._spawnBoss(this._roomData?.bossType ?? null)
+    } else if (this._enemyPool === 'mage') {
+      this._spawnMageRoom(Phaser.Math.Between(4, 5))
     } else {
       this._spawnEnemies(Phaser.Math.Between(5, 6))
     }
@@ -79,6 +93,7 @@ export class EnemyManager {
     }
 
     this._tickArrows(player)
+    this._tickBolts(player)
 
     // Verificar sala limpia
     if (this._activated && !this._roomCleared && this.enemies.filter(e => e.isAlive).length === 0) {
@@ -109,12 +124,41 @@ export class EnemyManager {
     }
   }
 
-  _spawnBoss() {
-    const boss = new Boss(this.scene, 450, 200, this.group, () => {
+  // Sala del Santuario del Mago: mayormente magos, con algo de melee
+  // de apoyo para que no sea solo esquivar hechizos a distancia.
+  _spawnMageRoom(count) {
+    if (this.destroyed) return
+    const diff = this.gameStore.difficulty
+
+    for (let i = 0; i < count; i++) {
+      const pos  = this._rndPos()
+      const roll = Math.random()
+      const isMage = roll < 0.65
+
+      const cfg = isMage ? { ...MAGE_BASE } : { ...ENEMY_BASE }
+      cfg.hp       = Math.round(cfg.hp       * diff.hpMult)
+      cfg.speed    = Math.round(cfg.speed    * diff.speedMult)
+      cfg.damage   = Math.round(cfg.damage   * diff.damageMult)
+      cfg.xpReward = Math.round(cfg.xpReward * (1 + this.gameStore.currentRoomId * 0.08))
+
+      const enemy = isMage
+        ? new MageEnemy(this.scene, pos.x, pos.y, this.group, this.boltGroup, cfg)
+        : new Enemy    (this.scene, pos.x, pos.y, this.group, cfg)
+      this.enemies.push(enemy)
+    }
+  }
+
+  _spawnBoss(bossType) {
+    const onDie = () => {
       this.gameStore.enemiesDefeated++
-      this.playerStore.gainXp(150)
+      this.playerStore.gainXp(bossType === 'archer' ? 220 : 150)
       if (this.onBossDefeated) this.onBossDefeated()
-    })
+    }
+
+    const boss = bossType === 'archer'
+      ? new ArcherBoss(this.scene, 450, 200, this.group, this.arrowGroup, onDie)
+      : new Boss(this.scene, 450, 200, this.group, onDie)
+
     this.enemies.push(boss)
   }
 
@@ -126,11 +170,16 @@ export class EnemyManager {
     this._addCol(this.arrowGroup, walls, (arrow) => {
       this._arrowSpark(arrow.x, arrow.y); arrow.destroy()
     })
+    // Hechizos del Mago vs paredes
+    this._addCol(this.boltGroup, walls, (bolt) => {
+      this._arrowSpark(bolt.x, bolt.y); bolt.destroy()
+    })
   }
 
   addObstacleCollider(obs) {
     this._addCol(this.group, obs)
     this._addCol(this.arrowGroup, obs, (arrow) => arrow.destroy())
+    this._addCol(this.boltGroup, obs, (bolt) => bolt.destroy())
   }
 
   // Collider enemigos ↔ bloque de puerta (registrado en GameScene)
@@ -151,6 +200,18 @@ export class EnemyManager {
     })
   }
 
+  // ── Hechizos del Mago ───────────────────────────────────────
+  _tickBolts(player) {
+    this.boltGroup.getChildren().forEach(bolt => {
+      if (!bolt.active) return
+      if (bolt.x < 0 || bolt.x > GAME_W || bolt.y < 0 || bolt.y > GAME_H) {
+        bolt.destroy(); return
+      }
+      const d = Phaser.Math.Distance.Between(bolt.x, bolt.y, player.x, player.y)
+      if (d < 22) { this._hitPlayerBolt(player, bolt); bolt.destroy() }
+    })
+  }
+
   // ── Daño al jugador ────────────────────────────────────────
   _hitPlayer(player, enemy, dmgOverride = null) {
     const dmg = dmgOverride ?? enemy.config?.damage ?? 8
@@ -167,6 +228,14 @@ export class EnemyManager {
     player.setVelocity(Math.cos(arrow.rotation) * 140, Math.sin(arrow.rotation) * 140)
     this._flashPlayer(player)
     this._arrowSpark(arrow.x, arrow.y)
+    if (!this.playerStore.isAlive) this.gameStore.gameOver()
+  }
+
+  _hitPlayerBolt(player, bolt) {
+    this.playerStore.takeDamage(bolt._damage || 16)
+    player.setVelocity(Math.cos(bolt.rotation) * 150, Math.sin(bolt.rotation) * 150)
+    this._flashPlayer(player)
+    this._arrowSpark(bolt.x, bolt.y)
     if (!this.playerStore.isAlive) this.gameStore.gameOver()
   }
 
@@ -197,9 +266,11 @@ export class EnemyManager {
     this.enemies = []
     // Destruir los grupos de physics completamente
     try { this.arrowGroup.destroy(true) } catch { /* ignore */ }
+    try { this.boltGroup.destroy(true) } catch { /* ignore */ }
     try { this.group.destroy(true) } catch { /* ignore */ }
   }
 
   get enemyGroup()  { return this.group }
   get arrowsGroup() { return this.arrowGroup }
+  get boltsGroup()  { return this.boltGroup }
 }

@@ -209,9 +209,20 @@ export class GameScene extends Phaser.Scene {
     this.enemyManager.addWallCollider(this.walls)
     if (this.obstacles) this.enemyManager.addObstacleCollider(this.obstacles)
 
+    // Sala normal limpiada → abrir puertas.
     this.enemyManager.onRoomCleared = () => this._openAllDoors()
+
+    // Jefe derrotado:
+    //  - Primer jefe (sala 7) → se desbloquea el Santuario del Mago.
+    //  - Segundo jefe, el Señor Arquero (roomData.final === true) → victoria real.
     this.enemyManager.onBossDefeated = () => {
-      this.time.delayedCall(1800, () => this.gameStore.victory())
+      const curRoom = this.gameStore.dungeonRooms[this.gameStore.currentRoomId]
+        ?? DUNGEON_MAP.rooms[this.gameStore.currentRoomId]
+      if (curRoom?.final) {
+        this.time.delayedCall(1800, () => this.gameStore.victory())
+      } else {
+        this.time.delayedCall(1800, () => this._openAllDoors())
+      }
     }
 
     if (roomData.type !== 'start' && !roomData.cleared) {
@@ -219,7 +230,7 @@ export class GameScene extends Phaser.Scene {
         if (!this.enemyManager || this.enemyManager.destroyed) return
 
         // Spawn enemigos primero
-        this.enemyManager.activate(roomData.type)
+        this.enemyManager.activate(roomData)
 
         // Luego cerrar puertas
         for (const door of this._doors) {
@@ -344,13 +355,18 @@ export class GameScene extends Phaser.Scene {
 
   // ── Banner ─────────────────────────────────────────────────
   _showBanner(roomData) {
-    const isBoss = roomData.type === 'boss'
-    const num    = this.gameStore.currentRoomId + 1
-    const label  = isBoss ? '⚠  SALA DEL JEFE  ⚠' : `SALA ${num}`
+    const isBoss   = roomData.type === 'boss'
+    const isArcher = isBoss && roomData.bossType === 'archer'
+    const isEntry  = roomData.sanctuaryEntry === true
+    const num      = this.gameStore.currentRoomId + 1
+    const label  = isArcher ? '☠  SEÑOR ARQUERO  ☠'
+      : isBoss   ? '⚠  SALA DEL JEFE  ⚠'
+      : isEntry  ? '🔮  SANTUARIO DEL MAGO  🔮'
+      : `SALA ${num}`
     const banner = this.add.text(GAME_W / 2, GAME_H / 2, label, {
       fontFamily: "'Press Start 2P'",
-      fontSize: isBoss ? '16px' : '20px',
-      color: isBoss ? '#ff5500' : '#ffffff',
+      fontSize: (isBoss || isEntry) ? '13px' : '20px',
+      color: isArcher ? '#66ff88' : isBoss ? '#ff5500' : isEntry ? '#bb66ff' : '#ffffff',
       stroke: '#000000', strokeThickness: 5
     }).setOrigin(0.5).setDepth(101).setAlpha(0)
     this.tweens.add({

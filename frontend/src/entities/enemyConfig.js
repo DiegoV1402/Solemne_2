@@ -27,8 +27,26 @@ export const ARCHER_BASE = {
   arrowSpeed:     340,
 }
 
+// Config específica del mago enemigo (aparece en las salas post-jefe)
+export const MAGE_BASE = {
+  hp:             30,
+  speed:          65,           // lento, confía en el blink para escapar
+  damage:         16,           // hechizo golpea fuerte
+  xpReward:       38,
+  detectionRange: 420,
+  patrolRange:    60,
+  attackCooldown: 2600,         // conjuro lento pero potente
+  knockback:      140,
+  type:           'mage',
+  preferredDist:  260,          // distancia ideal para lanzar hechizos
+  boltSpeed:      260,
+  teleportCooldown: 4200,       // ms entre parpadeos (blink) para huir
+  teleportRange:    170,        // distancia mínima a la que se teletransporta
+}
+
 export const ENEMY_SIZE  = 32
 export const ARCHER_SIZE = 30
+export const MAGE_SIZE   = 32
 
 export const ENEMY_SPAWN = {
   initial:      3,

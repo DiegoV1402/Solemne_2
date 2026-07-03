@@ -1,12 +1,16 @@
 // game/data/dungeonMap.js
-// 8 salas: Start → 6 Combat → Boss
+// 8 salas originales: Start → 6 Combat → Boss
+// + 6 salas nuevas no lineales (con ramificaciones, igual que el resto del
+// dungeon) pobladas por el enemigo Mago, que se desbloquean al derrotar al
+// jefe final (7). Al fondo de esas salas espera un SEGUNDO jefe —un Señor
+// Arquero, más difícil que el primero— cuya derrota dispara la victoria real.
 //
 // Layout visual (grid del minimapa):
 //
-// Col:  1     2     3     4     5
-// Row1:              [5]
-// Row2: [S=0] [1]   [2]  [4]  [Boss=7]
-// Row3:        [3]  [6]
+// Col:  1     2     3     4     5        6     7     8     9
+// Row1:              [5]                       [12]
+// Row2: [S=0] [1]   [2]  [4]  [Boss=7]  [8]   [9]  [11]  [Boss2=14]
+// Row3:        [3]  [6]              [10]  [13]
 
 import Phaser from 'phaser'
 
@@ -20,7 +24,20 @@ export const DUNGEON_MAP = {
     4: { id: 4, type: 'combat', layout: 'arena',      cleared: false, visited: false, connections: { west: 2, east: 7 } },
     5: { id: 5, type: 'combat', layout: 'pillars',    cleared: false, visited: false, connections: { south: 2 } },
     6: { id: 6, type: 'combat', layout: 'corridors',  cleared: false, visited: false, connections: { west: 3 } },
-    7: { id: 7, type: 'boss',   layout: 'open',       cleared: false, visited: false, connections: { west: 4 } },
+    7: { id: 7, type: 'boss',   layout: 'open',       cleared: false, visited: false, connections: { west: 4, east: 8 } },
+
+    // ── Santuario del Mago (se desbloquea al matar al primer jefe) ──
+    // Ramificado igual que el resto del dungeon, no lineal.
+    8:  { id: 8,  type: 'combat', layout: 'pillars',   enemyPool: 'mage', sanctuaryEntry: true, cleared: false, visited: false, connections: { west: 7, east: 9, south: 10 } },
+    9:  { id: 9,  type: 'combat', layout: 'cross',     enemyPool: 'mage', cleared: false, visited: false, connections: { west: 8, east: 11, north: 12 } },
+    10: { id: 10, type: 'combat', layout: 'corridors', enemyPool: 'mage', cleared: false, visited: false, connections: { north: 8, east: 13 } },
+    11: { id: 11, type: 'combat', layout: 'arena',     enemyPool: 'mage', cleared: false, visited: false, connections: { west: 9, east: 14 } },
+    12: { id: 12, type: 'combat', layout: 'pillars',   enemyPool: 'mage', cleared: false, visited: false, connections: { south: 9 } },
+    13: { id: 13, type: 'combat', layout: 'corridors', enemyPool: 'mage', cleared: false, visited: false, connections: { west: 10 } },
+
+    // ── Segundo jefe: Señor Arquero (final real de la partida) ──
+    14: { id: 14, type: 'boss', bossType: 'archer', final: true, layout: 'open',
+          cleared: false, visited: false, connections: { west: 11 } },
   }
 }
 

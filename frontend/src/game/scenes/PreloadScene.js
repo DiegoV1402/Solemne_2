@@ -637,6 +637,105 @@ export class PreloadScene extends Phaser.Scene {
       ag.destroy()
     }
 
+    // ── MAGO ENEMIGO — Hechicero corrupto con túnica violeta ─────────
+    {
+      const mge = this.make.graphics({ x: 0, y: 0, add: false })
+
+      // Sombra base
+      mge.fillStyle(0x0a0014, 1)
+      mge.fillRect(5, 10, 34, 34)
+
+      // ── Faldón de túnica (acampanado) ──
+      mge.fillStyle(0x2a1040, 1)
+      mge.fillRect(7, 26, 30, 18)
+      mge.fillStyle(0x3c1858, 1)
+      mge.fillRect(8, 27, 13, 16)
+      mge.fillStyle(0x200c30, 1)
+      mge.fillRect(23, 27, 13, 16)
+      // ribete arcano inferior
+      mge.fillStyle(0x9944ee, 1)
+      mge.fillRect(7, 41, 30, 2)
+      mge.fillStyle(0xcc88ff, 1)
+      mge.fillRect(7, 41, 30, 1)
+
+      // ── Torso / túnica ──
+      mge.fillStyle(0x351450, 1)
+      mge.fillRect(9, 13, 26, 15)
+      mge.fillStyle(0x461c68, 1)
+      mge.fillRect(10, 14, 12, 13)
+      mge.fillStyle(0x260e3c, 1)
+      mge.fillRect(22, 14, 12, 13)
+      // runas en el pecho
+      mge.fillStyle(0xbb66ff, 1)
+      mge.fillRect(20, 16, 2, 8)
+      mge.fillRect(18, 19, 6, 2)
+      mge.fillStyle(0xeebbff, 1)
+      mge.fillRect(20, 16, 2, 3)
+
+      // ── Mangas / brazos ──
+      mge.fillStyle(0x2a1040, 1)
+      mge.fillRect(2, 15, 8, 16)
+      mge.fillRect(34, 15, 8, 16)
+      mge.fillStyle(0x461c68, 1)
+      mge.fillRect(3, 15, 5, 12)
+      mge.fillRect(35, 15, 5, 12)
+      // manos
+      mge.fillStyle(0x8858a0, 1)
+      mge.fillRect(2, 27, 6, 5)
+      mge.fillRect(36, 27, 6, 5)
+
+      // ── Capucha / cabeza ──
+      mge.fillStyle(0x200c30, 1)
+      mge.fillRect(10, 2, 24, 15)
+      mge.fillStyle(0x351450, 1)
+      mge.fillRect(11, 3, 22, 12)
+      mge.fillStyle(0x461c68, 1)
+      mge.fillRect(12, 4, 10, 9)
+      // sombra bajo la capucha (rostro oculto)
+      mge.fillStyle(0x05000a, 1)
+      mge.fillRect(14, 8, 16, 8)
+
+      // ── Ojos brillantes (violeta) ──
+      mge.fillStyle(0xaa55ff, 1)
+      mge.fillRect(16, 10, 5, 3)
+      mge.fillRect(24, 10, 5, 3)
+      mge.fillStyle(0xeeccff, 1)
+      mge.fillRect(17, 10, 2, 2)
+      mge.fillRect(25, 10, 2, 2)
+
+      // ── Punta de capucha ──
+      mge.fillStyle(0x200c30, 1)
+      mge.fillRect(19, -2, 6, 6)
+      mge.fillStyle(0x9944ee, 1)
+      mge.fillRect(21, -2, 2, 4)
+
+      // ── Orbe arcano flotante (mano derecha) ──
+      mge.fillStyle(0x5522aa, 0.5)
+      mge.fillCircle(40, 20, 7)
+      mge.fillStyle(0x9955ee, 0.9)
+      mge.fillCircle(40, 20, 5)
+      mge.fillStyle(0xddbbff, 1)
+      mge.fillCircle(40, 20, 2)
+
+      mge.generateTexture('enemy_mage', 44, 44)
+      mge.destroy()
+    }
+
+    // ── HECHIZO OSCURO (proyectil del Mago enemigo) ───────────────────
+    {
+      const db = this.make.graphics({ x: 0, y: 0, add: false })
+      db.fillStyle(0x5522aa, 0.5)
+      db.fillCircle(9, 9, 9)
+      db.fillStyle(0x9955ee, 0.9)
+      db.fillCircle(9, 9, 6)
+      db.fillStyle(0xddbbff, 1)
+      db.fillCircle(9, 9, 3)
+      db.fillStyle(0xffffff, 1)
+      db.fillCircle(8, 8, 1.5)
+      db.generateTexture('dark-bolt', 18, 18)
+      db.destroy()
+    }
+
     // ── FLECHA (sin cambios) ─────────────────────────────────────────
     {
       const arrowG = this.make.graphics({ x: 0, y: 0, add: false })
